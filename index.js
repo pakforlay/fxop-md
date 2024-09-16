@@ -1,9 +1,8 @@
 const express = require("express");
 const path = require("path");
 const config = require("./config");
-const { connect, modulesJS, patch } = require("./lib");
+const { connect, modulesJS } = require("./lib");
 const { fetchPlugins } = require("./lib/db/plugins");
-await patch();
 const app = express();
 const PORT = 8000;
 
