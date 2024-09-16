@@ -205,10 +205,13 @@ Module(
 	},
 	async (message, match, m) => {
 		if (!m.quoted) return await message.reply("Reply to a message to forward");
-
 		const jids = parsedJid(match);
+		const contextInfo = {
+			forwardingScore: 1,
+			isForwarded: true,
+		};
 		for (const jid of jids) {
-			await message.forward(jid, m.quoted.message);
+			await message.forward(jid, m.quoted.message, { contextInfo });
 		}
 	},
 );

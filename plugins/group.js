@@ -72,6 +72,20 @@ Module(
 
 Module(
 	{
+		pattern: "leave",
+		fromMe: true,
+		desc: "Leaves a Group",
+		type: "group",
+	},
+	async (message, match, client) => {
+		if (!message.isGroup) return await message.reply("_This command is for groups_");
+		await message.reply("_Left_");
+		return await client.groupLeave(message.chat.id);
+	},
+);
+
+Module(
+	{
 		pattern: "kick",
 		fromMe: true,
 		desc: "kicks a person from group",
