@@ -64,8 +64,7 @@ Module(
 		type: "download",
 	},
 	async (message, match, client) => {
-		match = match.reply_message || match.includes("https://facebook.com");
-		if (!match) return await message.sendReply("```Wrong format\n\n" + message.prefix + "fb URL```");
+		if (!match || !/^(https:\/\/)?(www\.)?facebook\.com\/[A-Za-z0-9_.]+/.test(match)) return await message.reply("_Need a valid Facebook URL_");
 		const response = await getJson(IronMan(`ironman/dl/fb?url=${match}`));
 		const buff = await getBuffer(response.ironman[0].url);
 		await message.send(buff);
@@ -74,9 +73,20 @@ Module(
 
 Module(
 	{
-		pattern: "insta ?(.*)"
-	}
-)
+		pattern: "insta ?(.*)",
+		fromMe: mode,
+		desc: "Downloads Instagram Video",
+		type: "download",
+	},
+	async (message, match, client) => {
+		if (!match || !/^(https:\/\/)?(www\.)?instagram\.com\/(p|reel|stories|tv|[A-Za-z0-9_.]+)/.test(match)) return await message.reply("_Need a valid Instagram URL_");
+		const msg = await message.reply(`Downloading ${match}`);
+		const res = await getJson("https://api.guruapi.tech/insta/v1/igdl?url=" + match);
+		const buff = await getBuffer(res.media[0].url);
+		await msg.edit("*_Download Success_*");
+		return await message.send(buff);
+	},
+);
 
 /*Module(
 	{
@@ -139,7 +149,7 @@ Module(
 		type: "download",
 	},
 	async (message, match) => {
-		if (!match || !match.includes("https://open.spotify.com")) return await message.reply("_Need a valid Spotify URL_");
+		if (!match || !/^(https:\/\/)?(open\.)?spotify\.com\/[A-Za-z0-9_.\/?=]+/.test(match)) return await message.reply("_Need a valid Spotify URL_");
 		const { link } = await getJson(IronMan(`ironman/dl/spotify?link=${match}`));
 		const buff = await toPTT(await getBuffer(link));
 		await message.send(buff);
@@ -154,7 +164,7 @@ Module(
 		type: "download",
 	},
 	async (message, match) => {
-		if (!match || !match.includes("https://x.com")) return await message.reply("_Invalid Twitter URL_");
+		if (!match || !/^(https:\/\/)?(www\.)?(twitter|x)\.com\/[A-Za-z0-9_]+/.test(match)) return await message.reply("_Need a valid X (Twitter) URL_");
 		const msg = await message.reply("*_Downloading_*");
 		const buff = await twitter(match);
 		await msg.edit("*_Download Success_*");
@@ -197,7 +207,7 @@ Module(
 
 Module(
 	{
-		pattern: "ytv",
+		pattern: "ytv ?(.*)",
 		fromMe: mode,
 		desc: "Downloads Youtube Videos From URL",
 		type: "download",
@@ -216,7 +226,7 @@ Module(
 
 Module(
 	{
-		pattern: "yta",
+		pattern: "yta ?(.*)",
 		fromeMe: mode,
 		desc: "Downloads Youtube Audio From URL",
 		type: "download",
