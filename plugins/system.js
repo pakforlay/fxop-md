@@ -1,7 +1,7 @@
 const { Module, mode, runtime, commands, removePluginHandler, installPluginHandler, listPluginsHandler } = require("../lib");
-const util = require("util");
-const { BOT_INFO, TIME_ZONE } = require("../config");
+const { TIME_ZONE } = require("../config");
 const { exec } = require("child_process");
+const { PausedChats } = require("../lib/db");
 
 Module(
 	{
@@ -42,6 +42,37 @@ Module(
 	async (message, match) => {
 		await message.sendReply("*_Shutting Down_*");
 		await exec(require("../package.json").scripts.stop);
+	},
+);
+
+Module(
+	{
+		pattern: "disable ?(.*)",
+		fromMe: true,
+		desc: "Disables the bot",
+		type: "system",
+	},
+	async message => {
+		await PausedChats.savePausedChat(message.key.remoteJid);
+		await message.reply("_Bot Disabled in this Chat_");
+	},
+);
+
+Module(
+	{
+		pattern: "enable ?(.*)",
+		fromMe: true,
+		desc: "Enables the bot",
+		type: "system",
+	},
+	async message => {
+		const pausedChat = await PausedChats.PausedChats.findOne({ where: { chatId: message.key.remoteJid } });
+		if (pausedChat) {
+			await pausedChat.destroy();
+			await message.reply("_Bot Enabled in this Chat_");
+		} else {
+			await message.reply("_Bot wasn't disabled_");
+		}
 	},
 );
 

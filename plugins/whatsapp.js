@@ -1,39 +1,7 @@
 const fileType = require("file-type");
 const { Module, mode, serialize, parsedJid } = require("../lib");
-const { PausedChats } = require("../lib/db");
 const { loadMessage, getName } = require("../lib/db/StoreDb");
-const { DELETED_LOG_CHAT, DELETED_LOG, STATUS_SAVER } = require("../config");
-
-Module(
-	{
-		pattern: "pause ?(.*)",
-		fromMe: true,
-		desc: "Pause the chat",
-		type: "whatsapp",
-	},
-	async message => {
-		await PausedChats.savePausedChat(message.key.remoteJid);
-		await message.reply("Chat paused successfully.");
-	},
-);
-
-Module(
-	{
-		pattern: "resume ?(.*)",
-		fromMe: true,
-		desc: "Resume the paused chat",
-		type: "whatsapp",
-	},
-	async message => {
-		const pausedChat = await PausedChats.PausedChats.findOne({ where: { chatId: message.key.remoteJid } });
-		if (pausedChat) {
-			await pausedChat.destroy();
-			await message.reply("Chat resumed successfully.");
-		} else {
-			await message.reply("Chat is not paused.");
-		}
-	},
-);
+const { DELETED_LOG_CHAT, DELETED_LOG } = require("../config");
 
 Module(
 	{
@@ -58,8 +26,8 @@ Module(
 		desc: "Remove profile picture",
 		type: "whatsapp",
 	},
-	async (message) => {
-		await message.removePP();
+	async message => {
+		await message.removePP(message.user);
 		return await message.sendReply("_Profile Photo Removed!_");
 	},
 );
