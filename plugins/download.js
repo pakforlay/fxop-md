@@ -26,7 +26,7 @@ Module(
 	},
 	async (message, match) => {
 		const { mediafiredl } = require("../lib/");
-		const got = require("got");
+		const got = require("got-cjs");
 		if (!match) return await message.sendReply("_No Url Was Provided!_");
 		const url = match.trim();
 		if (!url || !/https?:\/\/(www\.)?mediafire\.com/.test(url)) return await message.reply(`\`\`\`${message.prefix}mediafire <media_url>\`\`\``);
