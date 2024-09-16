@@ -1,6 +1,57 @@
 const { Module, mode, toPTT, twitter, getJson, IronMan, getBuffer, aptoideDl } = require("../lib");
 const { ytPlay } = require("client");
 
+
+const mimez = {
+    'apk': 'application/vnd.android.package-archive',
+    'pdf': 'application/pdf',
+    'zip': 'application/zip',
+    'jpg': 'image/jpeg',
+    'jpeg': 'image/jpeg',
+    'png': 'image/png',
+    'txt': 'text/plain',
+    'doc': 'application/msword',
+    'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'xls': 'application/vnd.ms-excel',
+    'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'csv': 'text/csv',
+    'rar': 'application/x-rar-compressed'
+};
+
+Module(
+    {
+        pattern: "mediafire ?(.*)",
+        fromMe: mode, 
+        desc: "Downloading files_doc",
+        type: "download",
+    },
+    async (message, match) => {
+        const url = match.trim();
+        if (!url || !/https?:\/\/(www\.)?mediafire\.com/.test(url)) {
+            return await message.reply(`\`\`\`${message.prefix}mediafire <media_url>\`\`\``);
+        }     const msg = await message.reply("_downloading file..._");
+        try {    const next = await mediafiredl(url);
+            if (!next.url) {
+                return await message.reply("err");
+            }  const mime_naxor = mimez[next.ext.toLowerCase()] || `application/${next.ext}`;
+            const fileStream = got.stream(next.url);
+        await message.sendMessage(
+                message.jid,
+                fileStream,
+                {
+                    mimetype: mime_naxor,
+                    filename: `${next.filename}.${next.ext}`,
+                    caption: `Filename: ${next.filename}\nType: ${next.filetype}\nSize: ${next.filesizeH}`
+                },
+                "document"
+            );
+            await msg.edit("*_Done_*");
+        } catch (err) {
+            await msg.edit(`*_${err.message}_*`);
+        }
+    }
+);
+
 Module(
 	{
 		pattern: "fb ?(.*)",
