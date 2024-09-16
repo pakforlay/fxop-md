@@ -47,7 +47,7 @@ Module(
 
 Module(
 	{
-		pattern: "disable ?(.*)",
+		pattern: "enable ?(.*)",
 		fromMe: true,
 		desc: "Disables the bot",
 		type: "system",
@@ -60,7 +60,7 @@ Module(
 
 Module(
 	{
-		pattern: "enable ?(.*)",
+		pattern: "disable ?(.*)",
 		fromMe: true,
 		desc: "Enables the bot",
 		type: "system",
