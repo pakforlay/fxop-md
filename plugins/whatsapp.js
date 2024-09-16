@@ -58,9 +58,9 @@ Module(
 		desc: "Remove profile picture",
 		type: "whatsapp",
 	},
-	async () => {
+	async (message) => {
 		await message.removePP();
-		await message.sendReply("_Profile Photo Removed!_");
+		return await message.sendReply("_Profile Photo Removed!_");
 	},
 );
 
