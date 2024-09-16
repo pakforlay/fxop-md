@@ -1,7 +1,5 @@
 const { Module, parsedJid, isAdmin } = require("../lib/");
 const { banUser, unbanUser, isBanned } = require("../lib/db/ban");
-const moment = require("moment");
-const { scheduleGroupMuteUnmute } = require("../lib/client");
 Module(
 	{
 		on: "message",
@@ -621,63 +619,5 @@ Module(
 			}
 			await client.sendMessage(message.jid, { text: "Anti-demote activated. Demotion reverted." });
 		}
-	},
-);
-
-Module(
-	{
-		pattern: "automute ?(.*)",
-		fromMe: true,
-		desc: "Schedule group mute",
-		type: "group",
-	},
-	async (message, match, m, client) => {
-		if (!message.isGroup) return await message.reply("_This command is for groups_");
-		if (!match) return await message.reply("_Provide time in HH:mm format_");
-
-		const isUserAdmin = await isAdmin(message.jid, message.participant, client);
-		if (!isUserAdmin) return await message.reply("_You need to be an admin to use this command_");
-
-		const [hours, minutes] = match.split(":").map(Number);
-		if (isNaN(hours) || isNaN(minutes) || hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
-			return await message.reply("_Invalid time format. Use HH:mm (e.g., 14:30)_");
-		}
-
-		const muteTime = moment().set({ hours, minutes, seconds: 0 });
-		if (muteTime.isBefore(moment())) {
-			muteTime.add(1, "day");
-		}
-		scheduleGroupMuteUnmute(message.jid, muteTime, null, client);
-
-		await message.reply(`_Group will be muted at ${muteTime.format("HH:mm")} daily_`);
-	},
-);
-
-Module(
-	{
-		pattern: "autounmute ?(.*)",
-		fromMe: true,
-		desc: "Schedule group unmute",
-		type: "group",
-	},
-	async (message, match, m, client) => {
-		if (!message.isGroup) return await message.reply("_This command is for groups_");
-		if (!match) return await message.reply("_Provide time in HH:mm format_");
-
-		const isUserAdmin = await isAdmin(message.jid, message.participant, client);
-		if (!isUserAdmin) return await message.reply("_You need to be an admin to use this command_");
-
-		const [hours, minutes] = match.split(":").map(Number);
-		if (isNaN(hours) || isNaN(minutes) || hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
-			return await message.reply("_Invalid time format. Use HH:mm (e.g., 14:30)_");
-		}
-
-		const unmuteTime = moment().set({ hours, minutes, seconds: 0 });
-		if (unmuteTime.isBefore(moment())) {
-			unmuteTime.add(1, "day");
-		}
-		scheduleGroupMuteUnmute(message.jid, null, unmuteTime, client);
-
-		await message.reply(`_Group will be unmuted at ${unmuteTime.format("HH:mm")} daily_`);
 	},
 );
