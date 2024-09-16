@@ -1,57 +1,59 @@
 const { Module, mode, toPTT, twitter, getJson, IronMan, getBuffer, aptoideDl } = require("../lib");
 const { ytPlay } = require("client");
 
-
 const mimez = {
-    'apk': 'application/vnd.android.package-archive',
-    'pdf': 'application/pdf',
-    'zip': 'application/zip',
-    'jpg': 'image/jpeg',
-    'jpeg': 'image/jpeg',
-    'png': 'image/png',
-    'txt': 'text/plain',
-    'doc': 'application/msword',
-    'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'xls': 'application/vnd.ms-excel',
-    'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    'csv': 'text/csv',
-    'rar': 'application/x-rar-compressed'
+	apk: "application/vnd.android.package-archive",
+	pdf: "application/pdf",
+	zip: "application/zip",
+	jpg: "image/jpeg",
+	jpeg: "image/jpeg",
+	png: "image/png",
+	txt: "text/plain",
+	doc: "application/msword",
+	docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+	xls: "application/vnd.ms-excel",
+	xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+	csv: "text/csv",
+	rar: "application/x-rar-compressed",
 };
 
 Module(
-    {
-        pattern: "mediafire ?(.*)",
-        fromMe: mode, 
-        desc: "Downloading files_doc",
-        type: "download",
-    },
-    async (message, match) => {
-    const { mediafiredl } = require('../lib/scrapper/mediafiredl'); 
-    const got = require('got'); 	    
-        const url = match.trim();
-        if (!url || !/https?:\/\/(www\.)?mediafire\.com/.test(url)) {
-            return await message.reply(`\`\`\`${message.prefix}mediafire <media_url>\`\`\``);
-        }     const msg = await message.reply("_downloading file..._");
-        try {    const next = await mediafiredl(url);
-            if (!next.url) {
-                return await message.reply("err");
-            }  const mime_naxor = mimez[next.ext.toLowerCase()] || `application/${next.ext}`;
-            const fileStream = got.stream(next.url);
-        await message.sendMessage(
-                message.jid,
-                fileStream,
-                {
-                    mimetype: mime_naxor,
-                    filename: `${next.filename}.${next.ext}`,
-                    caption: `*⍈ — NAME*: ${next.filename}\n*⍈ — TYPE*: ${next.filetype}\n*⍈ — SIZE*: ${next.filesizeH}`
-                },
-                "document"
-            );
-            await msg.edit("*_Done_*");
-        } catch (err) {
-            await msg.edit(`*_${err.message}_*`);
-        }
-    }
+	{
+		pattern: "mediafire ?(.*)",
+		fromMe: mode,
+		desc: "Downloading files_doc",
+		type: "download",
+	},
+	async (message, match) => {
+		const { mediafiredl } = require("../lib/scrapper/mediafiredl");
+		const got = require("got");
+		const url = match.trim();
+		if (!url || !/https?:\/\/(www\.)?mediafire\.com/.test(url)) {
+			return await message.reply(`\`\`\`${message.prefix}mediafire <media_url>\`\`\``);
+		}
+		const msg = await message.reply("_downloading file..._");
+		try {
+			const next = await mediafiredl(url);
+			if (!next.url) {
+				return await message.reply("err");
+			}
+			const mime_naxor = mimez[next.ext.toLowerCase()] || `application/${next.ext}`;
+			const fileStream = got.stream(next.url);
+			await message.sendMessage(
+				message.jid,
+				fileStream,
+				{
+					mimetype: mime_naxor,
+					filename: `${next.filename}.${next.ext}`,
+					caption: `*⍈ — NAME*: ${next.filename}\n*⍈ — TYPE*: ${next.filetype}\n*⍈ — SIZE*: ${next.filesizeH}`,
+				},
+				"document",
+			);
+			await msg.edit("*_Done_*");
+		} catch (err) {
+			await msg.edit(`*_${err.message}_*`);
+		}
+	},
 );
 
 Module(
@@ -97,23 +99,24 @@ Module(
 		type: "download",
 	},
 	async (message, match) => {
-		const appId = match.trim(); 
+		const appId = match.trim();
 		if (!appId) return await message.reply(`\`\`\`Wrong format\n\n${message.prefix}apk FreeFire\`\`\``);
 		const msg = await message.reply("_Downloading " + appId + "_");
-		try { const appInfo = await aptoideDl(appId); 
-		   const buff = await getBuffer(appInfo.link);
-                     if (!buff || !appInfo.appname) {
-		   return await msg.edit("*_err_*");
+		try {
+			const appInfo = await aptoideDl(appId);
+			const buff = await getBuffer(appInfo.link);
+			if (!buff || !appInfo.appname) {
+				return await msg.edit("*_err_*");
 			}
-                   await message.sendMessage(
+			await message.sendMessage(
 				message.jid,
 				buff,
 				{
-				   mimetype: "application/vnd.android.package-archive", 
-				   filename: `${appInfo.appname}.apk`, 
-				   caption: `By fxop-md: ${appInfo.appname}` 
+					mimetype: "application/vnd.android.package-archive",
+					filename: `${appInfo.appname}.apk`,
+					caption: `By fxop-md: ${appInfo.appname}`,
 				},
-				"document"
+				"document",
 			);
 			await msg.edit("*_Download Success_*");
 		} catch (err) {
