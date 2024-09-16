@@ -17,7 +17,7 @@ Module(
 	},
 );
 
-Module(
+/*Module(
 	{
 		pattern: "apk ?(.*)",
 		fromMe: mode,
@@ -32,6 +32,40 @@ Module(
 		const buff = await getBuffer(appInfo.link);
 		await msg.edit("*_Download Success_*");
 		await message.sendMessage(message.jid, buff, { mimetype: "application/vnd.android.package-archive", filename: `${appId.appname}.apk`, caption: match }, "document");
+	},
+);
+*/
+
+Module(
+	{
+		pattern: "apk ?(.*)",
+		fromMe: mode,
+		desc: "Downloads and sends an app",
+		type: "download",
+	},
+	async (message, match) => {
+		const appId = match.trim(); 
+		if (!appId) return await message.reply(`\`\`\`Wrong format\n\n${message.prefix}apk FreeFire\`\`\``);
+		const msg = await message.reply("_Downloading " + appId + "_");
+		try { const appInfo = await aptoideDl(appId); 
+		   const buff = await getBuffer(appInfo.link);
+                     if (!buff || !appInfo.appname) {
+		   return await msg.edit("*_err_*");
+			}
+                   await message.sendMessage(
+				message.jid,
+				buff,
+				{
+				   mimetype: "application/vnd.android.package-archive", 
+				   filename: `${appInfo.appname}.apk`, 
+				   caption: `By fxop-md: ${appInfo.appname}` 
+				},
+				"document"
+			);
+			await msg.edit("*_Download Success_*");
+		} catch (err) {
+			await msg.edit(err.message + "_*");
+		}
 	},
 );
 
