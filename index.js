@@ -3,13 +3,12 @@ const path = require("path");
 const config = require("./config");
 const { connect, modulesJS, patch } = require("./lib");
 const { fetchPlugins } = require("./lib/db/plugins");
-
+await patch();
 const app = express();
 const PORT = 8000;
 
 async function initialize() {
 	try {
-		await patch();
 		await modulesJS(path.join(__dirname, "/lib/db/"));
 		await config.DATABASE.sync();
 		await modulesJS(path.join(__dirname, "/plugins/"));
