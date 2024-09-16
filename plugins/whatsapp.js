@@ -5,44 +5,6 @@ const { DELETED_LOG_CHAT, DELETED_LOG } = require("../config");
 
 Module(
 	{
-		pattern: "whois ?(.*)",
-		fromMe: mode,
-		desc: "to find how is",
-		type: "whatsapp",
-	},
-	async (message, match) => {
-		let pp;
-		let status;
-		let user = message.quoted ? message.reply_message.sender : match.replace(/[^0-9]/g, "") + "@s.whatsapp.net";
-		if (!user) return message.reply("_Reply to someone/mention_\n*Example:* . whois @user");
-		try {
-			pp = await message.client.profilePictureUrl(user, "image");
-		} catch {
-			pp = "https://graph.org/file/924bcf22ea2aab5208489.jpg";
-		}
-		try {
-			status = await message.client.fetchStatus(user);
-		} catch {
-			status = "private";
-		}
-		const date = new Date(status.setAt);
-		const options = {
-			year: "numeric",
-			month: "long",
-			day: "numeric",
-			hour: "numeric",
-			minute: "numeric",
-			second: "numeric",
-		};
-		let wm = "https://wa.me/" + user.split("@")[0];
-		const setAt = date.toLocaleString("en-US", options);
-		const NaMe = await message.store.getName(user);
-		await message.send({ url: pp }, { caption: `*Name :* ${NaMe}\n*About :* ${status.status}\n*About Set Date :* ${setAt}\n*whatsapp :* ${wm}`, quoted: message }, "image");
-	},
-);
-
-Module(
-	{
 		pattern: "readmore ?(.*)",
 		fromMe: mode,
 		desc: "Make Readmore Text",
