@@ -26,6 +26,8 @@ Module(
         type: "download",
     },
     async (message, match) => {
+    const { mediafiredl } = require('../lib/scrapper/mediafiredl'); 
+    const got = require('got'); 	    
         const url = match.trim();
         if (!url || !/https?:\/\/(www\.)?mediafire\.com/.test(url)) {
             return await message.reply(`\`\`\`${message.prefix}mediafire <media_url>\`\`\``);
