@@ -1,4 +1,4 @@
-const { Module, mode, qrcode, isUrl, Bitly, removeBg, tinyurl, ssweb, shortenurl, upload } = require("../lib");
+const { Module, mode, qrcode, isUrl, Bitly, removeBg, tinyurl, ssweb, shortenurl, upload, IronMan } = require("../lib");
 const config = require("../config");
 
 Module(
@@ -122,5 +122,60 @@ Module(
 		const buff = await m.quoted.download();
 		const url = await upload(buff);
 		return await msg.edit(`*IMAGE UPLOADED: ${url}*`);
+	},
+);
+
+Module(
+	{
+		pattern: "time ?(.*)",
+		fromMe: mode,
+		desc: "Find Time",
+		type: "tools",
+	},
+	async (message, match) => {
+		if (!match) return await message.reply("*Need a place name to know time*\n_Example: .time japan_");
+		var p = match.toLowerCase();
+		const res = await fetch(IronMan(`ironman/search/time?loc=${p}`));
+		const data = await res.json();
+		if (data.error === "no place") return await message.send("_*No place found*_");
+		const { name, state, tz, capital, currCode, currName, phone } = data;
+		const now = new Date();
+		const format12hrs = { timeZone: tz, hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true };
+		const format24hrs = { timeZone: tz, hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false };
+		const time12 = new Intl.DateTimeFormat("en-US", format12hrs).formatToParts(now);
+		const time24 = new Intl.DateTimeFormat("en-US", format24hrs).formatToParts(now);
+		const milliseconds = now.getMilliseconds().toString().padStart(3, "0");
+		let time12WithMs = "";
+		time12.forEach(({ type, value }) => {
+			if (type === "dayPeriod") {
+				time12WithMs += `:${milliseconds} ${value}`;
+			} else {
+				time12WithMs += value;
+			}
+		});
+		const time24WithMs = time24.map(({ value }) => value).join("") + `:${milliseconds}`;
+		let msg = `*ᴄᴜʀʀᴇɴᴛ ᴛɪᴍᴇ*\n(12-hour format): ${time12WithMs}\n(24-hour format): ${time24WithMs}\n`;
+		msg += `*ʟᴏᴄᴀᴛɪᴏɴ:* ${name}\n`;
+		if (state) {
+			msg += `*ꜱᴛᴀᴛᴇ:* ${state}\n`;
+		}
+		msg += `*ᴄᴀᴘɪᴛᴀʟ:* ${capital}\n`;
+		msg += `*ᴄᴜʀʀᴇɴᴄʏ:* ${currName} (${currCode})\n`;
+		msg += `*ᴘʜᴏɴᴇ ᴄᴏᴅᴇ:* +${phone}`;
+		await message.sendReply(msg);
+	},
+);
+
+Module(
+	{
+		pattern: "wm",
+		fromMe: mode,
+		desc: "wame generator",
+		type: "tools",
+	},
+	async (message, match) => {
+		if (!message.quoted) return message.reply("_*Reply to a user*_");
+		let sender = "https://wa.me/" + (message.reply_message.sender || message.mention[0] || message.text).split("@")[0];
+		await message.reply(sender);
 	},
 );

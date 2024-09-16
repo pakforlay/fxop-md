@@ -1,7 +1,66 @@
 const fileType = require("file-type");
-const { Module, mode, serialize, parsedJid } = require("../lib");
+const { Module, mode, serialize, parsedJid, c2 } = require("../lib");
 const { loadMessage, getName } = require("../lib/db/StoreDb");
 const { DELETED_LOG_CHAT, DELETED_LOG } = require("../config");
+
+Module(
+	{
+		pattern: "whois ?(.*)",
+		fromMe: mode,
+		desc: "to find how is",
+		type: "whatsapp",
+	},
+	async (message, match) => {
+		let pp;
+		let status;
+		let user = message.quoted ? message.reply_message.sender : match.replace(/[^0-9]/g, "") + "@s.whatsapp.net";
+		if (!user) return message.reply("_Reply to someone/mention_\n*Example:* . whois @user");
+		try {
+			pp = await message.client.profilePictureUrl(user, "image");
+		} catch {
+			pp = "https://graph.org/file/924bcf22ea2aab5208489.jpg";
+		}
+		try {
+			status = await message.client.fetchStatus(user);
+		} catch {
+			status = "private";
+		}
+		const date = new Date(status.setAt);
+		const options = {
+			year: "numeric",
+			month: "long",
+			day: "numeric",
+			hour: "numeric",
+			minute: "numeric",
+			second: "numeric",
+		};
+		let wm = "https://wa.me/" + user.split("@")[0];
+		const setAt = date.toLocaleString("en-US", options);
+		const NaMe = await message.store.getName(user);
+		await message.send({ url: pp }, { caption: `*Name :* ${NaMe}\n*About :* ${status.status}\n*About Set Date :* ${setAt}\n*whatsapp :* ${wm}`, quoted: message }, "image");
+	},
+);
+
+Module(
+	{
+		pattern: "readmore ?(.*)",
+		fromMe: mode,
+		desc: "Make Readmore Text",
+		type: "whatsapp",
+	},
+	async (message, match) => {
+		if (!match) return message.reply("*Need text*\n_Example: .readmore Hi\\how are you_");
+		const readmore = match.split("\\");
+		const c1 = readmore[0];
+		const c = readmore[1];
+		const texts = `${c1} ${c2} ${c}`;
+		if (!c1 || !c) {
+			return await message.send("*Need text*\nExample: .readmore Hi\\how are you_");
+		} else {
+			return message.reply(texts);
+		}
+	},
+);
 
 Module(
 	{
@@ -234,5 +293,239 @@ Module(
 		} else {
 			await message.reply("_Edit function not available on the message_");
 		}
+	},
+);
+
+Module(
+	{
+		pattern: "clear ?(.*)",
+		fromMe: true,
+		desc: "delete whatsapp chat",
+		type: "whatsapp",
+	},
+	async (message, match) => {
+		await message.client.chatModify(
+			{
+				delete: true,
+				lastMessages: [
+					{
+						key: message.data.key,
+						messageTimestamp: message.messageTimestamp,
+					},
+				],
+			},
+			message.jid,
+		);
+		await message.reply("_Cleared.._");
+	},
+);
+
+Module(
+	{
+		pattern: "archive ?(.*)",
+		fromMe: true,
+		desc: "archive whatsapp chat",
+		type: "whatsapp",
+	},
+	async (message, match) => {
+		const lstMsg = {
+			message: message.message,
+			key: message.key,
+			messageTimestamp: message.messageTimestamp,
+		};
+		await message.client.chatModify(
+			{
+				archive: true,
+				lastMessages: [lstMsg],
+			},
+			message.jid,
+		);
+		await message.reply("_Archived.._");
+	},
+);
+
+Module(
+	{
+		pattern: "unarchive ?(.*)",
+		fromMe: true,
+		desc: "unarchive whatsapp chat",
+		type: "whatsapp",
+	},
+	async (message, match) => {
+		const lstMsg = {
+			message: message.message,
+			key: message.key,
+			messageTimestamp: message.messageTimestamp,
+		};
+		await message.client.chatModify(
+			{
+				archive: false,
+				lastMessages: [lstMsg],
+			},
+			message.jid,
+		);
+		await message.reply("_Unarchived.._");
+	},
+);
+
+Module(
+	{
+		pattern: "pin ?(.*)",
+		fromMe: true,
+		desc: "pin a chat",
+		type: "whatsapp",
+	},
+	async (message, match) => {
+		await message.client.chatModify(
+			{
+				pin: true,
+			},
+			message.jid,
+		);
+		await message.reply("_Pined.._");
+	},
+);
+
+Module(
+	{
+		pattern: "unpin ?(.*)",
+		fromMe: true,
+		desc: "unpin a msg",
+		type: "whatsapp",
+	},
+	async (message, match) => {
+		await message.client.chatModify(
+			{
+				pin: false,
+			},
+			message.jid,
+		);
+		await message.reply("_Unpined.._");
+	},
+);
+
+Module(
+	{
+		pattern: "setbio",
+		fromMe: true,
+		desc: "To change your profile status",
+		type: "whatsapp",
+	},
+	async (message, match) => {
+		match = match || message.reply_message.text;
+		if (!match) return await message.send("*Need Status!*\n*Example: setbio Hey there! I am using WhatsApp*.");
+		await message.client.updateProfileStatus(match);
+		await message.reply("_Profile bio updated_");
+	},
+);
+
+Module(
+	{
+		pattern: "getprivacy ?(.*)",
+		fromMe: true,
+		desc: "get your privacy settings",
+		type: "whatsapp",
+	},
+	async (message, match) => {
+		const { readreceipts, profile, status, online, last, groupadd, calladd } = await message.client.fetchPrivacySettings(true);
+		const msg = `*♺ my privacy*\n\n*ᝄ name :* ${message.client.user.name}\n*ᝄ online:* ${online}\n*ᝄ profile :* ${profile}\n*ᝄ last seen :* ${last}\n*ᝄ read receipt :* ${readreceipts}\n*ᝄ about seted time :*\n*ᝄ group add settings :* ${groupadd}\n*ᝄ call add settings :* ${calladd}`;
+		let img = await message.client.profilePictureUrl(message.user.jid, "image").catch(() => "https://f.uguu.se/oHGtgfmR.jpg");
+		await message.send(img, { caption: msg }, "image");
+	},
+);
+
+Module(
+	{
+		pattern: "lastseen ?(.*)",
+		fromMe: true,
+		desc: "to change lastseen privacy",
+		type: "whatsapp",
+	},
+	async (message, match, m) => {
+		if (!match) return await message.send(`_*Example:-* ${message.prefix} all_\n_to change last seen privacy settings_`);
+		const available_privacy = ["all", "contacts", "contact_blacklist", "none"];
+		if (!available_privacy.includes(match)) return await message.send(`_action must be *${available_privacy.join("/")}* values_`);
+		await message.client.updateLastSeenPrivacy(match);
+		await message.send(`_Privacy settings *last seen* Updated to *${match}*_`);
+	},
+);
+
+Module(
+	{
+		pattern: "online ?(.*)",
+		fromMe: true,
+		desc: "to change online privacy",
+		type: "whatsapp",
+	},
+	async (message, match, m) => {
+		if (!match) return await message.send(`_*Example:-* ${message.prefix} all_\n_to change *online*  privacy settings_`);
+		const available_privacy = ["all", "match_last_seen"];
+		if (!available_privacy.includes(match)) return await message.send(`_action must be *${available_privacy.join("/")}* values_`);
+		await message.client.updateOnlinePrivacy(match);
+		await message.send(`_Privacy Updated to *${match}*_`);
+	},
+);
+
+Module(
+	{
+		pattern: "mypp ?(.*)",
+		fromMe: true,
+		desc: "privacy setting profile picture",
+		type: "whatsapp",
+	},
+	async (message, match) => {
+		if (!match) return await message.send(`_*Example:-* ${message.prefix} all_\n_to change *profile picture*  privacy settings_`);
+		const available_privacy = ["all", "contacts", "contact_blacklist", "none"];
+		if (!available_privacy.includes(match)) return await message.send(`_action must be *${available_privacy.join("/")}* values_`);
+		await message.client.updateProfilePicturePrivacy(match);
+		await message.send(`_Privacy Updated to *${match}*_`);
+	},
+);
+
+Module(
+	{
+		pattern: "mystatus ?(.*)",
+		fromMe: true,
+		desc: "privacy for my status",
+		type: "whatsapp",
+	},
+	async (message, match) => {
+		if (!match) return await message.send(`_*Example:-* ${message.prefix} all_\n_to change *status*  privacy settings_`);
+		const available_privacy = ["all", "contacts", "contact_blacklist", "none"];
+		if (!available_privacy.includes(match)) return await message.send(`_action must be *${available_privacy.join("/")}* values_`);
+		await message.client.updateStatusPrivacy(match);
+		await message.send(`_Privacy Updated to *${match}*_`);
+	},
+);
+
+Module(
+	{
+		pattern: "read ?(.*)",
+		fromMe: true,
+		desc: "privacy for read message",
+		type: "whatsapp",
+	},
+	async (message, match, m) => {
+		if (!match) return await message.send(`_*Example:-* ${message.prefix} all_\n_to change *read and receipts message*  privacy settings_`);
+		const available_privacy = ["all", "none"];
+		if (!available_privacy.includes(match)) return await message.send(`_action must be *${available_privacy.join("/")}* values_`);
+		await message.client.updateReadReceiptsPrivacy(match);
+		await message.send(`_Privacy Updated to *${match}*_`);
+	},
+);
+
+Module(
+	{
+		pattern: "groupadd ?(.*)",
+		fromMe: true,
+		desc: "privacy for group add",
+		type: "whatsapp",
+	},
+	async (message, match, m) => {
+		if (!match) return await message.send(`_*Example:-* ${message.prefix} all_\n_to change *group add*  privacy settings_`);
+		const available_privacy = ["all", "contacts", "contact_blacklist", "none"];
+		if (!available_privacy.includes(match)) return await message.send(`_action must be *${available_privacy.join("/")}* values_`);
+		await message.client.updateGroupsAddPrivacy(match);
+		await message.send(`_Privacy Updated to *${match}*_`);
 	},
 );
