@@ -43,7 +43,7 @@ Module(
                 {
                     mimetype: mime_naxor,
                     filename: `${next.filename}.${next.ext}`,
-                    caption: `Filename: ${next.filename}\nType: ${next.filetype}\nSize: ${next.filesizeH}`
+                    caption: `*⍈ — NAME*: ${next.filename}\n*⍈ — TYPE*: ${next.filetype}\n*⍈ — SIZE*: ${next.filesizeH}`
                 },
                 "document"
             );
