@@ -59,6 +59,20 @@ Module(
 
 Module(
 	{
+		pattern: "logout",
+		fromMe: true,
+		desc: "logouts of out the bot",
+		type: "system",
+	},
+	async (message, match, client) => {
+		await message.sendReply("_Logged Out!_");
+		await message.logout();
+		return await exec(require("../package.json").scripts.stop);
+	},
+);
+
+Module(
+	{
 		pattern: "install",
 		fromMe: true,
 		desc: "Installs External plugins",

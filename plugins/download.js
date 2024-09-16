@@ -27,10 +27,10 @@ Module(
 	async (message, match) => {
 		const { mediafiredl } = require("../lib/");
 		const got = require("got");
+		if (!match) return await message.sendReply("_No Url Was Provided!_");
 		const url = match.trim();
-		if (!url || !/https?:\/\/(www\.)?mediafire\.com/.test(url)) {
-			return await message.reply(`\`\`\`${message.prefix}mediafire <media_url>\`\`\``);
-		}
+		if (!url || !/https?:\/\/(www\.)?mediafire\.com/.test(url)) return await message.reply(`\`\`\`${message.prefix}mediafire <media_url>\`\`\``);
+
 		const msg = await message.reply("_downloading file..._");
 		try {
 			const next = await mediafiredl(url);
@@ -71,6 +71,12 @@ Module(
 		await message.send(buff);
 	},
 );
+
+Module(
+	{
+		pattern: "insta ?(.*)"
+	}
+)
 
 /*Module(
 	{
@@ -186,5 +192,43 @@ Module(
 		const audio = await toPTT(video, "mp3");
 		await msg.edit(`*_Download Successful_*`);
 		await message.send(audio);
+	},
+);
+
+Module(
+	{
+		pattern: "ytv",
+		fromMe: mode,
+		desc: "Downloads Youtube Videos From URL",
+		type: "download",
+	},
+	async (message, match, client) => {
+		if (!match || !/^(https:\/\/)?(www\.)?(youtube\.com|youtu\.be)/.test(match)) {
+			return await message.reply("_Need a valid YouTube URL_");
+		}
+		const msgdl = await message.reply("_Downloading " + match + "_");
+		const res = await getJson("https://api.guruapi.tech/ytdl/ytmp4?url=" + match);
+		const buff = await getBuffer(res.video_url);
+		await msgdl.edit(`_Successfully Downloaded ${res.title}_`);
+		return await message.send(buff, { caption: res.description });
+	},
+);
+
+Module(
+	{
+		pattern: "yta",
+		fromeMe: mode,
+		desc: "Downloads Youtube Audio From URL",
+		type: "download",
+	},
+	async (message, match, client) => {
+		if (!match || !/^(https:\/\/)?(www\.)?(youtube\.com|youtu\.be)/.test(match)) {
+			return await message.reply("_Need a valid YouTube URL_");
+		}
+		const msgdl = await message.reply("_Downloading " + match + "_");
+		const res = await getJson("https://api.guruapi.tech/ytdl/ytmp4?url=" + match);
+		const buff = await getBuffer(res.audio_url);
+		await msgdl.edit(`_Successfully Downloaded ${res.title}\n${res.author}_`);
+		return await message.send(buff);
 	},
 );
