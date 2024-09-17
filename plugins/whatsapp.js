@@ -119,18 +119,20 @@ Module(
 );
 
 Module(
-	{
-		pattern: "vv ?(.*)",
-		fromMe: true,
-		desc: "Forwards The View once message",
-		type: "whatsapp",
-	},
-	async (message, match, m) => {
-		const buff = await m.quoted.download();
-		await message.sendFile(message.user, buff);
-		return await message.sendReply("_Check Your PM SiR_");
-	},
+  {
+    pattern: "vv ?(.*)",
+    fromMe: true,
+    desc: "Forwards The View once message",
+    type: "whatsapp",
+  },
+  async (message, match, m) => {
+      const buff = await m.quoted.download();
+      const buffer = Buffer.isBuffer(buff) ? buff : Buffer.from(buff);
+      await message.sendFile(message.user, buffer);
+      return await message.sendReply("_Check Your PM SiR_");
+  }
 );
+
 Module(
 	{
 		pattern: "quoted ?(.*)",
