@@ -1,14 +1,15 @@
 {
 	"name": "fx-md",
-	"build": {
-		"dockerfile": "Dockerfile"
-	},
+	"dockerFile": "Dockerfile",
 	"customizations": {
 		"vscode": {
-			"extensions": ["ms-azuretools.vscode-docker"]
+			"extensions": ["ms-azuretools.vscode-docker"],
+			"settings": {
+				"terminal.integrated.defaultProfile.linux": "bash"
+			}
 		}
 	},
-	"forwardPorts": [3000],
+	"forwardPorts": [8000],
 	"postCreateCommand": "npm install",
 	"remoteUser": "node"
 }
