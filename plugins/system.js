@@ -278,30 +278,42 @@ Module(
 );
 
 Module(
-	{
-		on: "text",
-		fromMe: true,
-		dontAddCommandList: true,
-	},
-	async (message, match, m, client) => {
-		const content = message.text;
-		if (!content) return;
-		if (!(content.startsWith(">") || content.startsWith("$"))) return;
+  {
+    on: "text",
+    fromMe: true,
+    dontAddCommandList: true,
+  },
+  async (message, match, m, client) => {
+    const content = message.text;
+    if (!content) return;
+    if (!(content.startsWith(">") || content.startsWith("$") || content.startsWith("|"))) return;
 
-		const evalCmd = content.slice(1).trim();
-
-		try {
-			let result = await eval(`(${evalCmd})`);
-
-			if (typeof result === "function") {
-				result = util.inspect(result, { depth: null, showHidden: true });
-			} else if (typeof result !== "string") {
-				result = util.inspect(result, { depth: null });
-			}
-
-			await message.reply(result);
-		} catch (error) {
-			await message.reply(`Error: ${error.message}`);
-		}
-	},
+    const evalCmd = content.slice(1).trim();
+    
+    try {
+      let result = await eval(`(${evalCmd})`);
+      
+      if (typeof result === 'function') {
+        let functionString = result.toString();
+        if (functionString.includes('[native code]') || functionString.length < 50) {
+          let properties = Object.getOwnPropertyNames(result);
+          let propertyString = properties.map(prop => {
+            try {
+              return `${prop}: ${util.inspect(result[prop], { depth: 0 })}`;
+            } catch (e) {
+              return `${prop}: [Unable to inspect]`;
+            }
+          }).join('\n');
+          
+          functionString += '\n\nProperties:\n' + propertyString;
+        }
+        result = functionString;
+      } else if (typeof result !== "string") {
+        result = util.inspect(result, { depth: null });
+      }
+      await message.reply(result);
+    } catch (error) {
+      await message.reply(`Error: ${error.message}`);
+    }
+  },
 );
