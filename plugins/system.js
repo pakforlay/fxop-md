@@ -5,7 +5,7 @@ const { PausedChats } = require("../lib/db");
 
 Module(
 	{
-		pattern: "ping ?(.*)",
+		pattern: "ping",
 		fromMe: mode,
 		desc: "Bot response in milliseconds.",
 		type: "system",
