@@ -1,5 +1,5 @@
 const fileType = require("file-type");
-const { Module, mode, serialize, parsedJid, c2 } = require("../lib");
+const { Module, mode, serialize, parsedJid } = require("../lib");
 const { loadMessage, getName } = require("../lib/db/StoreDb");
 const { DELETED_LOG_CHAT, DELETED_LOG } = require("../config");
 
@@ -11,16 +11,9 @@ Module(
 		type: "whatsapp",
 	},
 	async (message, match) => {
-		if (!match) return message.reply("*Need text*\n_Example: .readmore Hi\\how are you_");
-		const readmore = match.split("\\");
-		const c1 = readmore[0];
-		const c = readmore[1];
-		const texts = `${c1} ${c2} ${c}`;
-		if (!c1 || !c) {
-			return await message.send("*Need text*\nExample: .readmore Hi\\how are you_");
-		} else {
-			return message.reply(texts);
-		}
+		if (!match) return message.reply("Need text\n_Example: .readmore Hi\\how are you_");
+		const [c1, c2] = match.split("\\");
+		message.reply(`${c1}\n${"‎".repeat(4000)}\n${c2}`);
 	},
 );
 

@@ -1,4 +1,5 @@
-const { Module, mode, runtime, commands, removePluginHandler, installPluginHandler, listPluginsHandler } = require("../lib");
+const { Module, mode, getCpuInfo, runtime, commands, removePluginHandler, installPluginHandler, listPluginsHandler } = require("../lib");
+const util = require("util");
 const { TIME_ZONE } = require("../config");
 const { exec } = require("child_process");
 const { PausedChats } = require("../lib/db");
@@ -101,7 +102,17 @@ Module(
 		return await exec(require("../package.json").scripts.stop);
 	},
 );
-
+Module(
+	{
+		pattern: "cpu",
+		fromMe: mode,
+		desc: "Returns CPU Info",
+		type: "system",
+	},
+	async message => {
+		await message.send(getCpuInfo);
+	},
+);
 Module(
 	{
 		pattern: "install",
@@ -215,21 +226,29 @@ Module(
 		return await message.send(commandListText);
 	},
 );
+
 Module(
 	{
 		on: "text",
 		fromMe: true,
 		dontAddCommandList: true,
 	},
-	async (message, match) => {
+	async (message, match, m, client) => {
 		const content = message.text;
 		if (!content) return;
 		if (!(content.startsWith(">") || content.startsWith("$"))) return;
 
 		const evalCmd = content.slice(1).trim();
+
 		try {
-			let result = await eval(evalCmd);
-			if (typeof result !== "string") result = require("util").inspect(result);
+			let result = await eval(`(${evalCmd})`);
+
+			if (typeof result === "function") {
+				result = util.inspect(result, { depth: null, showHidden: true });
+			} else if (typeof result !== "string") {
+				result = util.inspect(result, { depth: null });
+			}
+
 			await message.reply(result);
 		} catch (error) {
 			await message.reply(`Error: ${error.message}`);
