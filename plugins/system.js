@@ -1,7 +1,8 @@
-const { Module, mode, getCpuInfo, runtime, commands, removePluginHandler, installPluginHandler, listPluginsHandler } = require("../lib");
+const { Module, mode, getCpuInfo, runtime, commands, removePluginHandler, installPluginHandler, listPluginsHandler, getJson } = require("../lib");
 const util = require("util");
+const axios = require("axios");
 const { TIME_ZONE } = require("../config");
-const { exec } = require("child_process");
+const { exec, execSync } = require("child_process");
 const { PausedChats } = require("../lib/db");
 
 Module(
@@ -110,7 +111,8 @@ Module(
 		type: "system",
 	},
 	async message => {
-		await message.send(getCpuInfo);
+		const cpuInfo = await getCpuInfo();
+		await message.send(cpuInfo);
 	},
 );
 Module(
@@ -224,6 +226,54 @@ Module(
 		});
 
 		return await message.send(commandListText);
+	},
+);
+
+Module(
+	{
+		pattern: "patch ?(.*)",
+		fromMe: true,
+		desc: "Run bot patching",
+		type: "system",
+	},
+	async m => {
+		await m.reply("_Feature UnderDevelopment!_");
+	},
+);
+
+Module(
+	{
+		pattern: "fxop ?(.*)",
+		fromMe: mode,
+		desc: "Get Active Fxop Users",
+		type: "system",
+	},
+	async m => {
+		await m.reply("_Feature UnderDevelopment!_");
+	},
+);
+
+Module(
+	{
+		pattern: "checkupdates ?(.*)",
+		fromMe: true,
+		desc: "Check remote for Updates",
+		type: "system",
+	},
+	async (message, match, m, client) => {
+		try {
+			const repoUrl = "https://api.github.com/repos/FXastro/fxop-md/commits/master";
+			const response = await axios.get(repoUrl);
+			const latestRemoteCommit = response.data.sha;
+			const latestLocalCommit = execSync("git rev-parse HEAD").toString().trim();
+			if (latestRemoteCommit === latestLocalCommit) {
+				await message.send("You are on the latest version.");
+			} else {
+				await message.send(`*New updates are available*\n> ${latestRemoteCommit}.`);
+			}
+		} catch (error) {
+			await message.send("Failed to check for updates.");
+		}
 	},
 );
 
