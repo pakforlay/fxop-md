@@ -337,13 +337,8 @@ Module(
 		desc: "pin a chat",
 		type: "whatsapp",
 	},
-	async (message, match) => {
-		await message.client.chatModify(
-			{
-				pin: true,
-			},
-			message.jid,
-		);
+	async (message, match, m, client) => {
+		await client.pinchat();
 		await message.reply("_Pined.._");
 	},
 );
@@ -355,13 +350,8 @@ Module(
 		desc: "unpin a msg",
 		type: "whatsapp",
 	},
-	async (message, match) => {
-		await message.client.chatModify(
-			{
-				pin: false,
-			},
-			message.jid,
-		);
+	async (message, match, m, client) => {
+		await client.unpinchat();
 		await message.reply("_Unpined.._");
 	},
 );
