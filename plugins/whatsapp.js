@@ -127,11 +127,7 @@ Module(
 	},
 	async (message, match, m) => {
 		const buff = await m.quoted.download();
-		const { mime: mimeType } = (await fileType.fromBuffer(buff)) || { mime: "application/octet-stream" };
-		if (!mimeType) {
-			throw new Error("MIME type could not be detected.");
-		}
-		await message.sendMessage(message.sender.jid, buff, { mimetype: mimeType, caption: match }, "document");
+		await message.sendFile(message.user, buff);
 		return await message.sendReply("_Check Your PM SiR_");
 	},
 );
@@ -183,7 +179,7 @@ Module(
 	},
 	async (message, match, m, client) => {
 		if (!message.reply_message?.image && !message.reply_message.video && !message.reply_message.audio) return await message.sendReply("_Reply A Status_");
-		await message.forward(message.sender.jid, m.quoted.message);
+		await message.forward(message.user, m.quoted.message);
 	},
 );
 
