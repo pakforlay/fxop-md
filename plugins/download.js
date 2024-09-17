@@ -30,7 +30,6 @@ Module(
 		if (!match) return await message.sendReply("_No Url Was Provided!_");
 		const url = match.trim();
 		if (!url || !/https?:\/\/(www\.)?mediafire\.com/.test(url)) return await message.reply(`\`\`\`${message.prefix}mediafire <media_url>\`\`\``);
-
 		const msg = await message.reply("_downloading file..._");
 		try {
 			const next = await mediafiredl(url);
