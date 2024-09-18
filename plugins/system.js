@@ -224,7 +224,7 @@ Description: ${plugin.description || "No description available"}\`\`\``);
 					});
 					menuText += `\n╰──────────────\`\`\`\n`;
 				});
-			const media = await getBuffer(BOT_INFO[2]);
+			const media = await getBuffer(BOT_INFO[2].trim());
 			if (!media) {
 				return await message.send(menuText.trim());
 			} else {
