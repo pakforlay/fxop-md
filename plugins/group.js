@@ -6,7 +6,7 @@ const { getAntilink, updateAntilink, createAntilink } = require("../lib/db/antil
 Module(
 	{
 		pattern: "antilink",
-		fromMe: mode,
+		fromMe: true,
 		desc: "Manage antilink settings",
 		type: "group",
 	},
