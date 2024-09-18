@@ -1,4 +1,4 @@
-const { Module, mode, getJson, getBuffer, askAi, enhanceImage, bing } = require("../lib");
+const { Module, mode, getBuffer, askAi, enhanceImage, bing } = require("../lib");
 
 Module(
 	{
