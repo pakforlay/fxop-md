@@ -128,7 +128,3 @@ npm start
 - The setup script automates package installation, repository cloning, and environment variable configuration.
 - For security reasons, never share your `SESSION_ID` or other sensitive information publicly.
 - This bot is provided as-is, without any warranties. Use at your own risk and responsibility.
-
----
-
-We hope you find this WhatsApp bot useful! Feel free to contribute or report issues on our GitHub repository.
