@@ -9,8 +9,7 @@ Module(
 		type: "converter",
 	},
 	async (message, match, m) => {
-		if (!message.reply_message.video && !message.reply_message.sticker) return await message.reply("_Reply Photo/Video_");
-
+		if (!message.reply_message) return await message.reply("_Reply Photo/Video_");
 		const buff = await m.quoted.download();
 		const [packname, author] = config.STICKER_PACK.split(";");
 		message.sendMessage(message.jid, buff, { packname, author }, "sticker");
