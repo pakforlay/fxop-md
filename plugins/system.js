@@ -1,4 +1,4 @@
-const { Module, mode, getJson, getCpuInfo, runtime, commands, removePluginHandler, installPluginHandler, listPluginsHandler } = require("../lib");
+const { Module, mode, getBuffer, getJson, getCpuInfo, runtime, commands, removePluginHandler, installPluginHandler, listPluginsHandler } = require("../lib");
 const os = require("os");
 const util = require("util");
 const axios = require("axios");
@@ -199,6 +199,7 @@ Description: ${plugin.description || "No description available"}\`\`\``);
 │ Runtime: ${runtime(process.uptime())}
 │ RAM Usage: ${getRAMUsage()}
 │ OS: ${getOS()}
+│ Version: ${require("../package.json").version}
 ╰────────────────\`\`\`\n`;
 
 			const commandList = [];
@@ -224,7 +225,7 @@ Description: ${plugin.description || "No description available"}\`\`\``);
 					});
 					menuText += `\n╰──────────────\`\`\`\n`;
 				});
-			const media = await getBuffer(BOT_INFO[2].trim());
+			const media = await getBuffer(BOT_INFO.split(";")[2]);
 			if (!media) {
 				return await message.send(menuText.trim());
 			} else {
