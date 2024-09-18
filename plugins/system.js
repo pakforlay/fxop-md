@@ -207,7 +207,7 @@ Description: ${plugin.description || "No description available"}\`\`\``);
 
 			commands.forEach(command => {
 				if (command.pattern && !command.dontAddCommandList) {
-					const commandName = command.pattern.toString().split(/\W+/)[2]; // Changed this line
+					const commandName = command.pattern.toString().split(/\W+/)[2];
 					const category = command.type ? command.type.toLowerCase() : "misc";
 					commandList.push({ name: commandName, category });
 					categories.add(category);
