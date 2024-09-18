@@ -166,7 +166,7 @@ Description: ${plugin.description || "No description available"}\`\`\``);
 		} else {
 			const { prefix } = message;
 			const [currentDate, currentTime] = new Date().toLocaleString("en-IN", { timeZone: TIME_ZONE }).split(",");
-			let menuText = `\`\`\`╭─ ғxᴏᴘʀɪsᴀ ᴍᴅ  ───
+			let menuText = `\`\`\`╭─ ғxᴏᴘʀɪsᴀ ᴍᴅ ───
 │ User: ${message.pushName}
 │ Prefix: ${prefix}
 │ Date: ${currentDate}
