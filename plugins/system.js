@@ -1,9 +1,12 @@
-const { Module, mode, getCpuInfo, runtime, commands, removePluginHandler, installPluginHandler, listPluginsHandler, getJson } = require("../lib");
+const { Module, mode, getCpuInfo, runtime, commands, removePluginHandler, installPluginHandler, listPluginsHandler } = require("../lib");
 const util = require("util");
 const axios = require("axios");
-const { TIME_ZONE } = require("../config");
+const simplegit = require("simple-git");
+const git = simplegit();
+const { TIME_ZONE, BRANCH } = require("../config");
 const { exec, execSync } = require("child_process");
 const { PausedChats } = require("../lib/db");
+var branch = BRANCH;
 
 Module(
 	{
@@ -278,42 +281,105 @@ Module(
 );
 
 Module(
-  {
-    on: "text",
-    fromMe: true,
-    dontAddCommandList: true,
-  },
-  async (message, match, m, client) => {
-    const content = message.text;
-    if (!content) return;
-    if (!(content.startsWith(">") || content.startsWith("$") || content.startsWith("|"))) return;
+	{
+		pattern: "update",
+		fromMe: true,
+		desc: "Update the bot",
+		type: "system",
+	},
+	async (message, match) => {
+		prefix = message.prefix;
+		await git.fetch();
 
-    const evalCmd = content.slice(1).trim();
-    
-    try {
-      let result = await eval(`(${evalCmd})`);
-      
-      if (typeof result === 'function') {
-        let functionString = result.toString();
-        if (functionString.includes('[native code]') || functionString.length < 50) {
-          let properties = Object.getOwnPropertyNames(result);
-          let propertyString = properties.map(prop => {
-            try {
-              return `${prop}: ${util.inspect(result[prop], { depth: 0 })}`;
-            } catch (e) {
-              return `${prop}: [Unable to inspect]`;
-            }
-          }).join('\n');
-          
-          functionString += '\n\nProperties:\n' + propertyString;
-        }
-        result = functionString;
-      } else if (typeof result !== "string") {
-        result = util.inspect(result, { depth: null });
-      }
-      await message.reply(result);
-    } catch (error) {
-      await message.reply(`Error: ${error.message}`);
-    }
-  },
+		var commits = await git.log([branch + "..origin/" + branch]);
+		if (match === "now") {
+			if (commits.total === 0) {
+				return await message.send("```No changes in the latest commit```");
+			}
+			await message.send("*Updating...*");
+			await exec("git stash && git pull origin " + BRANCH, async (err, stdout, stderr) => {
+				if (err) {
+					return await message.send("```" + stderr + "```");
+				}
+				await message.send("*Restarting...*");
+				let dependancy = await updatedDependencies();
+				if (dependancy) {
+					await message.reply("*Dependancies changed installing new dependancies *");
+					await message.reply("*Restarting...*");
+					exec(require("../package.json").scripts.start);
+				} else {
+					await message.reply("*Restarting...*");
+					exec(require("../package.json").scripts.start);
+				}
+			});
+		} else {
+			if (commits.total === 0) {
+				return await message.send("```No changes in the latest commit```");
+			} else {
+				let changes = "_New update available!_\n\n";
+				changes += "*Commits:* ```" + commits.total + "```\n";
+				changes += "*Branch:* ```" + branch + "```\n";
+				changes += "*Changes:* \n";
+				commits.all.forEach((commit, index) => {
+					changes += "```" + (index + 1) + ". " + commit.message + "```\n";
+				});
+				changes += "\n*To update, send* ```" + prefix + "update now```";
+				await message.send(changes);
+			}
+		}
+	},
+);
+
+async function updatedDependencies() {
+	try {
+		const diff = await git.diff([`${branch}..origin/${branch}`]);
+		const hasDependencyChanges = diff.includes('"dependencies":');
+		return hasDependencyChanges;
+	} catch (error) {
+		console.error("Error occurred while checking package.json:", error);
+		return false;
+	}
+}
+
+Module(
+	{
+		on: "text",
+		fromMe: true,
+		dontAddCommandList: true,
+	},
+	async (message, match, m, client) => {
+		const content = message.text;
+		if (!content) return;
+		if (!(content.startsWith(">") || content.startsWith("$") || content.startsWith("|"))) return;
+
+		const evalCmd = content.slice(1).trim();
+
+		try {
+			let result = await eval(`(${evalCmd})`);
+
+			if (typeof result === "function") {
+				let functionString = result.toString();
+				if (functionString.includes("[native code]") || functionString.length < 50) {
+					let properties = Object.getOwnPropertyNames(result);
+					let propertyString = properties
+						.map(prop => {
+							try {
+								return `${prop}: ${util.inspect(result[prop], { depth: 0 })}`;
+							} catch (e) {
+								return `${prop}: [Unable to inspect]`;
+							}
+						})
+						.join("\n");
+
+					functionString += "\n\nProperties:\n" + propertyString;
+				}
+				result = functionString;
+			} else if (typeof result !== "string") {
+				result = util.inspect(result, { depth: null });
+			}
+			await message.reply(result);
+		} catch (error) {
+			await message.reply(`Error: ${error.message}`);
+		}
+	},
 );
