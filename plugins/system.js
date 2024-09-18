@@ -4,7 +4,7 @@ const util = require("util");
 const axios = require("axios");
 const simplegit = require("simple-git");
 const git = simplegit();
-const { TIME_ZONE, BRANCH } = require("../config");
+const { TIME_ZONE, BRANCH, BOT_INFO } = require("../config");
 const { exec, execSync } = require("child_process");
 const { PausedChats } = require("../lib/db");
 var branch = BRANCH;
@@ -224,7 +224,12 @@ Description: ${plugin.description || "No description available"}\`\`\``);
 					});
 					menuText += `\n╰──────────────\`\`\`\n`;
 				});
-			return await message.send(menuText.trim());
+			const media = await getBuffer(BOT_INFO[2]);
+			if (!media) {
+				return await message.send(menuText.trim());
+			} else {
+				return await message.send(media, { caption: menuText.trim() });
+			}
 		}
 	},
 );

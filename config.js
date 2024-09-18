@@ -22,7 +22,7 @@ module.exports = {
 					logging: false,
 			  }),
 	SESSION_ID: (process.env.SESSION_ID || "").trim(),
-	BOT_INFO: process.env.BOT_NAME || "Astro;FxBot",
+	BOT_INFO: process.env.BOT_NAME || "Astro;FxBot;https://f.uguu.se/nOJyVsty.jpg",
 	SUDO: process.env.SUDO || "912345678909",
 	HANDLERS: process.env.HANDLER === "false" || process.env.HANDLER === "null" ? "^" : ".",
 	WELCOME_MSG: process.env.WELCOME_MSG || "Hi @user Welcome to @gname",
