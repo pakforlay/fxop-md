@@ -1,4 +1,5 @@
 const { Module, mode, getJson, getCpuInfo, runtime, commands, removePluginHandler, installPluginHandler, listPluginsHandler } = require("../lib");
+const os = require("os");
 const util = require("util");
 const axios = require("axios");
 const simplegit = require("simple-git");
@@ -7,6 +8,27 @@ const { TIME_ZONE, BRANCH } = require("../config");
 const { exec, execSync } = require("child_process");
 const { PausedChats } = require("../lib/db");
 var branch = BRANCH;
+
+function getRAMUsage() {
+	const totalMemory = os.totalmem();
+	const freeMemory = os.freemem();
+	const usedMemory = totalMemory - freeMemory;
+	return `${(usedMemory / 1024 / 1024).toFixed(2)} MB / ${(totalMemory / 1024 / 1024).toFixed(2)} MB`;
+}
+
+function getOS() {
+	const osType = os.type();
+	switch (osType) {
+		case "Linux":
+			return "Linux";
+		case "Darwin":
+			return "MacOS";
+		case "Windows_NT":
+			return "Windows";
+		default:
+			return "VPS";
+	}
+}
 
 Module(
 	{
@@ -166,13 +188,17 @@ Description: ${plugin.description || "No description available"}\`\`\``);
 		} else {
 			const { prefix } = message;
 			const [currentDate, currentTime] = new Date().toLocaleString("en-IN", { timeZone: TIME_ZONE }).split(",");
+			const currentDay = new Date().toLocaleDateString("en-US", { weekday: "long" });
 			let menuText = `\`\`\`╭─ ғxᴏᴘʀɪsᴀ ᴍᴅ ───
 │ User: ${message.pushName}
 │ Prefix: ${prefix}
 │ Date: ${currentDate}
 │ Time: ${currentTime}
+│ Day: ${currentDay}
 │ Plugins: ${commands.length}
 │ Runtime: ${runtime(process.uptime())}
+│ RAM Usage: ${getRAMUsage()}
+│ OS: ${getOS()}
 ╰────────────────\`\`\`\n`;
 
 			const commandList = [];
@@ -273,7 +299,7 @@ Module(
 			const latestRemoteCommit = response.data.sha;
 			const latestLocalCommit = execSync("git rev-parse HEAD").toString().trim();
 			if (latestRemoteCommit === latestLocalCommit) {
-				await message.send("You are on the latest version.");
+				await message.send("```Already on the latest Version```");
 			} else {
 				await message.send(`*New updates are available*\n> ${latestRemoteCommit}.`);
 			}
@@ -297,7 +323,7 @@ Module(
 		var commits = await git.log([branch + "..origin/" + branch]);
 		if (match === "now") {
 			if (commits.total === 0) {
-				return await message.send("```No changes in the latest commit```");
+				return await message.send("```Already on the latest Version```");
 			}
 			await message.send("*Updating...*");
 			await exec("git stash && git pull origin " + BRANCH, async (err, stdout, stderr) => {
@@ -317,7 +343,7 @@ Module(
 			});
 		} else {
 			if (commits.total === 0) {
-				return await message.send("```No changes in the latest commit```");
+				return await message.send("```Already on the latest Version```");
 			} else {
 				let changes = "_New update available!_\n\n";
 				changes += "*Commits:* ```" + commits.total + "```\n";
