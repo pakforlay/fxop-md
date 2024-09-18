@@ -1,4 +1,4 @@
-const { Module, mode, getCpuInfo, runtime, commands, removePluginHandler, installPluginHandler, listPluginsHandler } = require("../lib");
+const { Module, mode, getJson, getCpuInfo, runtime, commands, removePluginHandler, installPluginHandler, listPluginsHandler } = require("../lib");
 const util = require("util");
 const axios = require("axios");
 const simplegit = require("simple-git");
@@ -252,7 +252,10 @@ Module(
 		type: "system",
 	},
 	async m => {
-		await m.reply("_Feature UnderDevelopment!_");
+		const msg = await m.reply("Fetching Users");
+		const data = await getJson("https://socket-counter-yb8q.onrender.com/active-users");
+		const users = data.activeUsers;
+		return await msg.edit(`*_${users} active Users on FX-BOT_*`);
 	},
 );
 
@@ -355,7 +358,12 @@ Module(
 		const evalCmd = content.slice(1).trim();
 
 		try {
-			let result = await eval(`(${evalCmd})`);
+			let result;
+			if (evalCmd.includes("await")) {
+				result = await eval(`(async () => { ${evalCmd} })();`);
+			} else {
+				result = eval(evalCmd);
+			}
 
 			if (typeof result === "function") {
 				let functionString = result.toString();
