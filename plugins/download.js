@@ -104,13 +104,23 @@ Module(
 		const appDetails = appInfo.data[0];
 
 		await msg.edit(`_Downloaded ${appDetails.title}_`);
+		const caption = `Title: ${appDetails.title}
+Developer: ${appDetails.developer}
+Version: ${appDetails.version}
+Updated: ${appDetails.updated}
+Download Count: ${appDetails.downloadCount}
+Size: ${appDetails.size}
+URL: ${appDetails.url}`;
+		const sanitizedTitle = appDetails.title.replace(/[^a-zA-Z0-9]/g, "_");
+		const filename = `${sanitizedTitle}_${appDetails.version}.apk`;
+
 		return await message.sendMessage(
 			message.jid,
 			buff,
 			{
 				mimetype: "application/vnd.android.package-archive",
-				filename: `${appDetails.title}.apk`,
-				caption: JSON.stringify(appDetails),
+				filename: filename,
+				caption: caption,
 			},
 			"document",
 		);
