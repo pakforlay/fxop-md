@@ -54,21 +54,31 @@ Module(
 		type: "system",
 	},
 	async (msg, match, client) => {
-		await msg.sendReply("*_Restarting_*");
-		await exec(require("../package.json").scripts.start);
+		await msg.sendReply("*_Restarting..._*");
+		exec("node index.js", (error, stdout, stderr) => {
+			if (error) {
+				console.error(`Error restarting bot: ${error.message}`);
+				return;
+			}
+			if (stderr) {
+				console.error(`Error output: ${stderr}`);
+				return;
+			}
+			console.log(`Bot restarted: ${stdout}`);
+		});
+		process.exit(1); // Exit the current process to allow restart
 	},
 );
-
 Module(
 	{
 		pattern: "shutdown",
 		fromMe: true,
-		desc: "stops the bot",
+		desc: "Stops the bot",
 		type: "system",
 	},
 	async (message, match) => {
-		await message.sendReply("*_Shutting Down_*");
-		await exec(require("../package.json").scripts.stop);
+		await message.sendReply("*_Shutting Down..._*");
+		process.exit(0);
 	},
 );
 
@@ -325,28 +335,36 @@ Module(
 		type: "system",
 	},
 	async (message, match) => {
-		prefix = message.prefix;
+		const prefix = message.prefix;
+		const branch = "master";
 		await git.fetch();
 
-		var commits = await git.log([branch + "..origin/" + branch]);
+		const commits = await git.log([branch + "..origin/" + branch]);
+
 		if (match === "now") {
 			if (commits.total === 0) {
 				return await message.send("```Already on the latest Version```");
 			}
 			await message.send("*Updating...*");
-			await exec("git stash && git pull origin " + BRANCH, async (err, stdout, stderr) => {
+			exec("git stash && git pull origin " + branch, async (err, stdout, stderr) => {
 				if (err) {
 					return await message.send("```" + stderr + "```");
 				}
 				await message.send("*Restarting...*");
-				let dependancy = await updatedDependencies();
+
+				const dependancy = await updatedDependencies();
 				if (dependancy) {
-					await message.reply("*Dependancies changed installing new dependancies *");
-					await message.reply("*Restarting...*");
-					exec(require("../package.json").scripts.start);
+					await message.reply("*Dependencies changed, installing new dependencies...*");
+					exec("npm install", (installErr, installStdout, installStderr) => {
+						if (installErr) {
+							return message.send("```Error installing dependencies: " + installStderr + "```");
+						}
+						exec(require("../package.json").scripts.start);
+						process.exit(1);
+					});
 				} else {
-					await message.reply("*Restarting...*");
 					exec(require("../package.json").scripts.start);
+					process.exit(1);
 				}
 			});
 		} else {
