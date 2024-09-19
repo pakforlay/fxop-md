@@ -63,7 +63,7 @@ Module(
 		type: "download",
 	},
 	async (message, match, client) => {
-		if (!match || !/^(https:\/\/)?(www\.)?facebook\.com\/[A-Za-z0-9_.]+/.test(match)) return await message.reply("_Need a valid Facebook URL_");
+		if (!match || !/^(https:\/\/)?(www\.)?facebook\.com\/[A-Za-z0-9_.]+/.test(match)) return await message.reply("ɴᴇᴇᴅ ғᴀᴄᴇʙᴏᴏᴋ ᴜʀʟ");
 		const response = await getJson(IronMan(`ironman/dl/fb?url=${match}`));
 		const buff = await getBuffer(response.ironman[0].url);
 		await message.send(buff);
@@ -78,7 +78,7 @@ Module(
 		type: "download",
 	},
 	async (message, match, client) => {
-		if (!match || !/^(https:\/\/)?(www\.)?instagram\.com\/(p|reel|stories|tv|[A-Za-z0-9_.]+)/.test(match)) return await message.reply("_Need a valid Instagram URL_");
+		if (!match || !/^(https:\/\/)?(www\.)?instagram\.com\/(p|reel|stories|tv|[A-Za-z0-9_.]+)/.test(match)) return await message.reply("ɴᴇᴇᴅ ɪɴsᴛᴀ ᴜʀʟ");
 		const msg = await message.reply(`Downloading ${match}`);
 		const res = await getJson("https://api.guruapi.tech/insta/v1/igdl?url=" + match);
 		const buff = await getBuffer(res.media[0].url);
@@ -104,13 +104,12 @@ Module(
 		const appDetails = appInfo.data[0];
 
 		await msg.edit(`_Downloaded ${appDetails.title}_`);
-		const caption = `Title: ${appDetails.title}
-Developer: ${appDetails.developer}
-Version: ${appDetails.version}
-Updated: ${appDetails.updated}
-Download Count: ${appDetails.downloadCount}
-Size: ${appDetails.size}
-URL: ${appDetails.url}`;
+		const caption = `ᴀᴘᴘɴᴀᴍᴇ: ${appDetails.title}
+ᴅᴇᴠᴇʟᴏᴘᴇʀ: ${appDetails.developer}
+ᴠᴇʀsɪᴏɴ: ${appDetails.version}
+ᴜᴘᴅᴀᴛᴇᴅ: ${appDetails.updated}
+ᴅᴏᴡɴʟᴏᴀᴅs: ${appDetails.downloadCount}
+ғɪʟᴇ sɪᴢᴇ: ${appDetails.size}`;
 		const sanitizedTitle = appDetails.title.replace(/[^a-zA-Z0-9]/g, "_");
 		const filename = `${sanitizedTitle}_${appDetails.version}.apk`;
 
@@ -135,7 +134,7 @@ Module(
 		type: "download",
 	},
 	async (message, match) => {
-		if (!match || !/^(https:\/\/)?(open\.)?spotify\.com\/[A-Za-z0-9_.\/?=]+/.test(match)) return await message.reply("_Need a valid Spotify URL_");
+		if (!match || !/^(https:\/\/)?(open\.)?spotify\.com\/[A-Za-z0-9_.\/?=]+/.test(match)) return await message.reply("ɴᴇᴇᴅ ᴀ ᴠᴀʟɪᴅ sᴘᴏᴛɪғʏ ᴜʀʟ");
 		const { link } = await getJson(IronMan(`ironman/dl/spotify?link=${match}`));
 		const buff = await toPTT(await getBuffer(link));
 		await message.send(buff);
@@ -150,10 +149,10 @@ Module(
 		type: "download",
 	},
 	async (message, match) => {
-		if (!match || !/^(https:\/\/)?(www\.)?(twitter|x)\.com\/[A-Za-z0-9_]+/.test(match)) return await message.reply("_Need a valid X (Twitter) URL_");
+		if (!match || !/^(https:\/\/)?(www\.)?(twitter|x)\.com\/[A-Za-z0-9_]+/.test(match)) return await message.reply("ɴᴇᴇᴅ ᴠᴀɪʟᴅ ᴛᴡɪᴛᴛᴇʀ ᴜʀʟ");
 		const msg = await message.reply("*_Downloading_*");
 		const buff = await twitter(match);
-		await msg.edit("*_Download Success_*");
+		await msg.edit("sᴜᴄᴄᴇss");
 		await message.send(buff);
 	},
 );
@@ -167,9 +166,9 @@ Module(
 	},
 	async (message, match) => {
 		if (!match[1]) return message.sendReply(`\`\`\`Wrong Usage\n\n${message.prefix}video Just the two of us\`\`\``);
-		const msg = await message.reply("*_Searching_*");
+		const msg = await message.reply("sᴇᴀʀᴄʜɪɴɢ ғᴏʀ " + match + "");
 		const { video } = await ytPlay(match);
-		await msg.edit(`*_Download Success_*`);
+		await msg.edit(`sᴜᴄᴄᴇss`);
 		await message.send(video);
 	},
 );
@@ -186,7 +185,7 @@ Module(
 		const msg = await message.reply("*_Downloading_*");
 		const { video } = await ytPlay(match);
 		const audio = await toPTT(video, "mp3");
-		await msg.edit(`*_Download Successful_*`);
+		await msg.edit(`sᴜᴄᴄᴇss`);
 		await message.send(audio);
 	},
 );
@@ -200,7 +199,7 @@ Module(
 	},
 	async (message, match, client) => {
 		if (!match || !/^(https:\/\/)?(www\.)?(youtube\.com|youtu\.be)/.test(match)) {
-			return await message.reply("_Need a valid YouTube URL_");
+			return await message.reply("ɴᴇᴇᴅ ʏᴛ ᴜʀʟ");
 		}
 		const msgdl = await message.reply("_Downloading " + match + "_");
 		const res = await getJson("https://api.guruapi.tech/ytdl/ytmp4?url=" + match);
@@ -219,7 +218,7 @@ Module(
 	},
 	async (message, match, client) => {
 		if (!match || !/^(https:\/\/)?(www\.)?(youtube\.com|youtu\.be)/.test(match)) {
-			return await message.reply("_Need a valid YouTube URL_");
+			return await message.reply("ɴᴇᴇᴅ ʏᴛ ᴜʀʟ");
 		}
 		const msgdl = await message.reply("_Downloading " + match + "_");
 		const res = await getJson("https://api.guruapi.tech/ytdl/ytmp4?url=" + match);
