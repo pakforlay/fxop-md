@@ -1,26 +1,26 @@
 const { Sequelize } = require("sequelize");
 require("dotenv").config();
 const toBool = x => (x && x.toLowerCase() === "true") || false;
-const DATABASE_URL = process.env.DATABASE_URL || "./database.db";
+const DATABASE_URL = process.env.DATABASE_URL || "./db.sqlite3";
+const isPostgres = DATABASE_URL.startsWith("postgresql://");
 module.exports = {
 	DATABASE_URL: DATABASE_URL,
-	DATABASE:
-		DATABASE_URL === "./database.db"
-			? new Sequelize({
-					dialect: "sqlite",
-					storage: DATABASE_URL,
-					logging: false,
-			  })
-			: new Sequelize(DATABASE_URL, {
-					dialect: "postgres",
-					ssl: true,
-					protocol: "postgres",
-					dialectOptions: {
-						native: true,
-						ssl: { require: true, rejectUnauthorized: false },
-					},
-					logging: false,
-			  }),
+	DATABASE: isPostgres
+		? new Sequelize(DATABASE_URL, {
+				dialect: "postgres",
+				ssl: true,
+				protocol: "postgres",
+				dialectOptions: {
+					native: true,
+					ssl: { require: true, rejectUnauthorized: false },
+				},
+				logging: false,
+		  })
+		: new Sequelize({
+				dialect: "sqlite",
+				storage: DATABASE_URL,
+				logging: false,
+		  }),
 	SESSION_ID: (process.env.SESSION_ID || "").trim(),
 	BOT_INFO: process.env.BOT_NAME || "Astro;FxBot;https://f.uguu.se/nOJyVsty.jpg",
 	SUDO: process.env.SUDO || "912345678909",
