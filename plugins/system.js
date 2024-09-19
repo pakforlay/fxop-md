@@ -179,7 +179,7 @@ Module(
 		if (query) {
 			for (const plugin of commands) {
 				if (plugin.pattern && plugin.pattern.test(message.prefix + query)) {
-					const commandName = plugin.pattern.toString().split(/\W+/)[2]; // Changed this line
+					const commandName = plugin.pattern.toString().split(/\W+/)[2];
 					return message.reply(`\`\`\`Command: ${message.prefix}${commandName.trim()}
 Description: ${plugin.description || "No description available"}\`\`\``);
 				}
@@ -225,16 +225,13 @@ Description: ${plugin.description || "No description available"}\`\`\``);
 					});
 					menuText += `\n╰──────────────\`\`\`\n`;
 				});
-			const media = await getBuffer(BOT_INFO.split(";")[2]);
-			if (!media) {
+
+			try {
+				const media = await getBuffer(BOT_INFO.split(";")[2]);
+				return await message.send(media, { caption: menuText.trim() });
+			} catch (error) {
+				console.error("Error fetching or sending media:", error);
 				return await message.send(menuText.trim());
-			} else {
-				if(!getBuffer) {
-					 await message.send(menuText.trim());
-				} else
-				{
-					return await message.send(media, {caption: menuText.trim()})
-				}
 			}
 		}
 	},
