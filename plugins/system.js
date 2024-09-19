@@ -229,7 +229,12 @@ Description: ${plugin.description || "No description available"}\`\`\``);
 			if (!media) {
 				return await message.send(menuText.trim());
 			} else {
-				return await message.send(media, { caption: menuText.trim() });
+				if(!getBuffer) {
+					 await message.send(menuText.trim());
+				} else
+				{
+					return await message.send(media, {caption: menuText.trim()})
+				}
 			}
 		}
 	},
