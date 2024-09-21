@@ -125,7 +125,7 @@ Module(
 		desc: "Forwards the view-once message",
 		type: "whatsapp",
 	},
-	async (message, match, m) => {
+	async (message, match, m, client) => {
 		const media = m.quoted.download();
 		await message.sendFile(media);
 	},
