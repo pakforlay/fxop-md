@@ -1,7 +1,7 @@
 const got = require("got-cjs");
 const Heroku = require("heroku-client");
 const Config = require("../config");
-const { Module } = requir("../lib");
+const { Module } = require("../lib");
 const heroku = new Heroku({ token: Config.HEROKU_API_KEY });
 const baseURI = "/apps/" + Config.HEROKU_APP_NAME;
 
