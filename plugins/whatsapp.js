@@ -11,7 +11,7 @@ Module(
 		type: "whatsapp",
 	},
 	async (message, match) => {
-		if (!match) return message.reply("Need text\n_Example: .readmore Hi\\how are you_");
+		if (!match) return message.reply("Need text\n_Example: .readmore Hihow are you_");
 		const [c1, c2] = match.split("\\");
 		message.reply(`${c1}\n${"‎".repeat(4000)}\n${c2}`);
 	},
@@ -119,18 +119,18 @@ Module(
 );
 
 Module(
-  {
-    pattern: "vv ?(.*)",
-    fromMe: true,
-    desc: "Forwards The View once message",
-    type: "whatsapp",
-  },
-  async (message, match, m) => {
-      const buff = await m.quoted.download();
-      const buffer = Buffer.isBuffer(buff) ? buff : Buffer.from(buff);
-      await message.sendFile(message.user, buffer);
-      return await message.sendReply("_Check Your PM SiR_");
-  }
+	{
+		pattern: "vv ?(.*)",
+		fromMe: true,
+		desc: "Forwards the view-once message",
+		type: "whatsapp",
+	},
+	async (message, match, m) => {
+		const buff = await m.quoted.download();
+		if (!Buffer.isBuffer(buff)) return await message.sendReply("_Failed to download the file_");
+		await message.sendFile(message.user, buff);
+		return await message.sendReply("_Check Your PM SiR_");
+	},
 );
 
 Module(
