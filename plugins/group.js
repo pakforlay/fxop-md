@@ -471,14 +471,22 @@ Module(
 	},
 	async (message, match, m, client) => {
 		if (!message.isGroup) return await message.reply("_This command is for groups_");
-		if (!isAdmin(message.jid, message.user, message.client)) return await message.reply("_I'm not admin_");
-		const requests = await client.groupRequestParticipantsList(message.jid);
-		if (requests.length === 0) return await message.reply("_No pending join requests_");
-		let requestList = "*Pending Join Requests:*\n";
-		requests.forEach((request, index) => {
-			requestList += `${index + 1}. @${request.jid.split("@")[0]}\n`;
-		});
-		return await message.sendMessage(message.jid, requestList, { mentions: requests.map(r => r.jid) });
+		if (!isAdmin(message.jid, message.user, message.client)) return await message.reply("_I need to be an admin to view join requests_");
+		try {
+			const requests = await client.groupRequestParticipantsList(message.jid);
+			if (requests.length === 0) return await message.reply("_No pending join requests_");
+			let requestList = "*Pending Join Requests:*\n";
+			requests.forEach((request, index) => {
+				requestList += `${index + 1}. @${request.jid.split("@")[0]}\n`;
+			});
+			await message.sendMessage(message.jid, requestList, { mentions: requests.map(r => r.jid) });
+		} catch (error) {
+			if (error.message.includes("forbidden")) {
+				await message.reply("_Unable to retrieve join requests. Check if the bot has permission or if the feature is available._");
+			} else {
+				console.error(error);
+			}
+		}
 	},
 );
 
