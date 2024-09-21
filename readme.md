@@ -119,7 +119,34 @@ npm start
    ```bash
    ./termux-setup.sh
    ```
+## Error While Installing ?
 
+1. Install Android NDK and set the android_ndk_path: The error specifically mentions that the android_ndk_path variable is undefined. You need to install the Android NDK and set this variable.
+
+Install Android NDK: You can install the Android NDK using pkg or apt in Termux:
+```bash
+pkg install ndk-sysroot
+```
+Set the android_ndk_path: After installing, set the path to the NDK. Usually, the path should be something like /data/data/com.termux/files/usr depending on your installation. Add this to your environment variables by editing your .bashrc or .zshrc:
+```bash
+export ANDROID_NDK_HOME=/data/data/com.termux/files/usr
+export PATH=$PATH:$ANDROID_NDK_HOME
+```
+
+
+2. Ensure all dependencies are installed: You may need additional build tools like make, gcc, and python to be installed in Termux:
+
+pkg install make gcc python
+
+
+3. Rebuild the package: After setting the NDK path and ensuring all dependencies are installed, try rebuilding sqlite3:
+
+```bash
+npm rebuild sqlite3
+```
+```bash
+pkg install nodejs-lts
+```
 ---
 
 ### Important Notes
