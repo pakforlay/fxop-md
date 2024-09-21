@@ -120,14 +120,15 @@ Module(
 
 Module(
 	{
-		pattern: "vv ?(.*)",
+		pattern: "vv",
 		fromMe: true,
-		desc: "Forwards the view-once message",
+		desc: "Forwards The View once messsage",
 		type: "whatsapp",
 	},
-	async (message, match, m, client) => {
-		const media = m.quoted.download();
-		await message.sendFile(media);
+	async (message, match, m) => {
+		if (!message.reply_message) return await message.reply("Reply a ViewOnce");
+		let buff = await m.quoted.download();
+		return await message.sendFile(buff);
 	},
 );
 
