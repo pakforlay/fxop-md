@@ -1,4 +1,4 @@
-const got = require("got");
+const got = require("got-cjs");
 const Heroku = require("heroku-client");
 const Config = require("../config");
 const { Module } = requir("../lib");
