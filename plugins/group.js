@@ -1,8 +1,4 @@
-const { Module, parsedJid } = require("../lib/");
-const { isAdmin } = require("../lib/src/functions");
-const { banUser, unbanUser, isBanned } = require("../lib/db/ban");
-const { setMessage, getMessage, delMessage, getStatus, toggleStatus } = require("../lib/db").Greetings;
-const { getAntilink, updateAntilink, createAntilink } = require("../lib/db/antilink");
+const { Module, parsedJid, isAdmin, banUser, unbanUser, isBanned, setMessage, getMessage, delMessage, getStatus, toggleStatus, getAntilink, updateAntilink, createAntilink } = require("../lib/");
 
 Module(
 	{
@@ -471,22 +467,14 @@ Module(
 	},
 	async (message, match, m, client) => {
 		if (!message.isGroup) return await message.reply("_This command is for groups_");
-		if (!isAdmin(message.jid, message.user, message.client)) return await message.reply("_I need to be an admin to view join requests_");
-		try {
-			const requests = await client.groupRequestParticipantsList(message.jid);
-			if (requests.length === 0) return await message.reply("_No pending join requests_");
-			let requestList = "*Pending Join Requests:*\n";
-			requests.forEach((request, index) => {
-				requestList += `${index + 1}. @${request.jid.split("@")[0]}\n`;
-			});
-			await message.sendMessage(message.jid, requestList, { mentions: requests.map(r => r.jid) });
-		} catch (error) {
-			if (error.message.includes("forbidden")) {
-				await message.reply("_Unable to retrieve join requests. Check if the bot has permission or if the feature is available._");
-			} else {
-				console.error(error);
-			}
-		}
+		if (!isAdmin(message.jid, message.user, client)) return await message.reply("_I need to be an admin to view join requests_");
+		const requests = await client.groupRequestParticipantsList(message.jid);
+		if (requests.length === 0) return await message.reply("_No pending join requests_");
+		let requestList = "*Pending Join Requests:*\n";
+		requests.forEach((request, index) => {
+			requestList += `${index + 1}. @${request.jid.split("@")[0]}\n`;
+		});
+		await message.sendMessage(message.jid, requestList, { mentions: requests.map(r => r.jid) });
 	},
 );
 
