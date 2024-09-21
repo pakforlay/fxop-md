@@ -126,10 +126,7 @@ Module(
 		type: "whatsapp",
 	},
 	async (message, match, m) => {
-		const buff = await m.quoted.download();
-		if (!Buffer.isBuffer(buff)) return await message.sendReply("_Failed to download the file_");
-		await message.sendFile(message.user, buff);
-		return await message.sendReply("_Check Your PM SiR_");
+		await message.sendFile(m.quoted.download());
 	},
 );
 
