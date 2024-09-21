@@ -6,22 +6,22 @@
   </a>
 </p>
 
-This repository contains a WhatsApp bot built using the Baileys library, designed for easy setup and deployment across various platforms. The bot offers a range of functionalities and can be customized to suit your needs.
+This repository features a customizable WhatsApp bot built with the Baileys library, designed for easy deployment across various platforms.
 
 ---
 
 ### Deployment Options
 
-Choose from the following platforms to deploy your bot:
+Deploy your bot on any of these platforms:
 
-- [Heroku](https://www.heroku.com/deploy?template=https://github.com/FXastro/fxop-md): Simple setup with paid eco tier ($5/month)
-- [Koyeb](https://app.koyeb.com/services/deploy?type=docker&image=docker.io/fxastro/fxop-md&name=fxop-md-demo): High-performance Docker deployment
-- [Render](https://render.com/deploy?repo=https://github.com/FXastro/fxop-md): Auto-scaling with minimal configuration
-- [Railway](https://railway.app/new/template?template=https://github.com/FXastro/fxop-md): Quick and straightforward deployment
-- [Termux](https://github.com/FXastro/fxop-md/blob/master/media/termux.md): Run on Android devices
-- [Panel](https://github.com/FXastro/fxop-md/releases/): Web-based control interface
-- [Codespaces](https://github.com/codespaces/new?repo=843557699&ref=master): Cloud-based development environment
-- [Replit](https://replit.com/~): Free, browser-based option for beginners
+- [Heroku](https://www.heroku.com/deploy?template=https://github.com/FXastro/fxop-md): Simple setup ($5/month)
+- [Koyeb](https://app.koyeb.com/services/deploy?type=docker&image=docker.io/fxastro/fxop-md&name=fxop-md-demo): High-performance Docker
+- [Render](https://render.com/deploy?repo=https://github.com/FXastro/fxop-md): Auto-scaling with minimal config
+- [Railway](https://railway.app/new/template?template=https://github.com/FXastro/fxop-md): Quick deployment
+- [Termux](https://github.com/FXastro/fxop-md/blob/master/media/termux.md): Run on Android
+- [Panel](https://github.com/FXastro/fxop-md/releases/): Web-based interface
+- [Codespaces](https://github.com/codespaces/new?repo=843557699&ref=master): Cloud-based dev environment
+- [Replit](https://replit.com/~): Free for beginners
 
 ---
 
@@ -29,31 +29,28 @@ Choose from the following platforms to deploy your bot:
 
 To run the bot locally:
 
-1. **Generate a Session ID**
-   Visit [this link](https://fx-session.vercel.app/) to create your `SESSION_ID`.
+1. **Generate a Session ID**: Create your `SESSION_ID` [here](https://fx-session.vercel.app/).
 
-2. **Configure Environment Variables**
-   Create a `.env` file in the project root with the following:
+2. **Configure Environment Variables**: Create a `.env` file with:
 
    ```env
    SESSION_ID="your_generated_session_id"
    BOT_INFO="YourName,YourBotName"
    ```
 
-3. **Launch the Bot**
-   Use your preferred method (Node.js, Docker, etc.) to start the bot.
+3. **Launch the Bot**: Use Node.js, Docker, or your preferred method.
 
 ---
 
 ### Support
 
-For assistance, join our [WhatsApp support channel](https://whatsapp.com/channel/0029VambPbJ2f3ERs37HvM2J).
+Need help? Join our [WhatsApp support channel](https://whatsapp.com/channel/0029VambPbJ2f3ERs37HvM2J).
 
 ---
 
 ### Termux Installation
 
-For Termux users, here's a quick setup script:
+Quick setup for Termux:
 
 ```bash
 pkg update && pkg upgrade -y
@@ -64,94 +61,57 @@ npm install
 npm start
 ```
 
-### Configuration Steps
+### Extended Setup (Optional)
 
-1. **Clone the Repository**
-   ```bash
-   git clone https://github.com/FXastro/fxop-md
-   cd fxop-md
-   ```
+Save the following as `termux-setup.sh`:
 
-2. **Set Up Environment Variables**
-   ```bash
-   echo 'SESSION_ID="your_session_id_here"' > .env
-   echo 'BOT_INFO="your_bot_info_here"' >> .env
-   echo 'SUDO="your_sudo_here"' >> .env
-   ```
+```bash
+#!/bin/bash
+pkg update && pkg upgrade -y
+pkg install nodejs ffmpeg git python openssh nano wget -y
+git clone https://github.com/FXastro/fxop-md
+cd fxop-md
+npm install
+echo 'SESSION_ID="your_session_id_here"' > .env
+echo 'BOT_INFO="your_bot_info_here"' >> .env
+npm start
+```
 
-   Replace placeholders with your actual values.
+Make it executable and run:
+
+```bash
+chmod +x termux-setup.sh
+./termux-setup.sh
+```
 
 ---
 
-### Extended Setup (Optional)
+### Installation Issues?
 
-1. Save the following as `termux-setup.sh`:
+If you encounter errors:
+
+1. Install Android NDK:
 
    ```bash
-   #!/bin/bash
-   
-   # Update and install dependencies
-   pkg update && pkg upgrade -y
-   pkg install nodejs ffmpeg git python openssh nano wget -y
-   
-   # Clone repository
-   git clone https://github.com/FXastro/fxop-md
-   cd fxop-md
-   
-   # Install npm packages
-   npm install
-   
-   # Create .env file
-   echo 'SESSION_ID="your_session_id_here"' > .env
-   echo 'BOT_INFO="your_bot_info_here"' >> .env
-   echo 'SUDO="your_sudo_here"' >> .env
-   
-   # Start the bot
-   npm start
+   pkg install ndk-sysroot
    ```
 
-2. Make it executable:
+2. Ensure dependencies are installed:
+
    ```bash
-   chmod +x termux-setup.sh
+   pkg install make gcc python
    ```
 
-3. Run the script:
+3. Rebuild SQLite3:
    ```bash
-   ./termux-setup.sh
+   npm rebuild sqlite3
    ```
-## Error While Installing ?
 
-1. Install Android NDK and set the android_ndk_path: The error specifically mentions that the android_ndk_path variable is undefined. You need to install the Android NDK and set this variable.
-
-Install Android NDK: You can install the Android NDK using pkg or apt in Termux:
-```bash
-pkg install ndk-sysroot
-```
-Set the android_ndk_path: After installing, set the path to the NDK. Usually, the path should be something like /data/data/com.termux/files/usr depending on your installation. Add this to your environment variables by editing your .bashrc or .zshrc:
-```bash
-export ANDROID_NDK_HOME=/data/data/com.termux/files/usr
-export PATH=$PATH:$ANDROID_NDK_HOME
-```
-
-
-2. Ensure all dependencies are installed: You may need additional build tools like make, gcc, and python to be installed in Termux:
-
-pkg install make gcc python
-
-
-3. Rebuild the package: After setting the NDK path and ensuring all dependencies are installed, try rebuilding sqlite3:
-
-```bash
-npm rebuild sqlite3
-```
-```bash
-pkg install nodejs-lts
-```
 ---
 
 ### Important Notes
 
-- Always replace placeholder values (`your_session_id_here`, `your_bot_info_here`, `your_sudo_here`) with your actual data.
-- The setup script automates package installation, repository cloning, and environment variable configuration.
-- For security reasons, never share your `SESSION_ID` or other sensitive information publicly.
-- This bot is provided as-is, without any warranties. Use at your own risk and responsibility.
+- Always replace placeholder values with your actual data.
+- The setup script automates installation and configuration.
+- Never share sensitive information like your `SESSION_ID`.
+- Use the bot at your own risk; it's provided as-is.
