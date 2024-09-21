@@ -4,7 +4,9 @@
 	"description": "Whatsapp Bot",
 	"main": "index.js",
 	"scripts": {
-		"start": "node index.js"
+		"start": "pm2 start . --attach --name fx-md",
+		"stop": "pm2 stop fx-md",
+		"dev": "node index.js"
 	},
 	"author": "FXastro",
 	"dependencies": {

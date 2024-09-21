@@ -331,7 +331,7 @@ Module(
 	{
 		pattern: "update",
 		fromMe: true,
-		desc: "Update the bot",
+		desc: "Update the bot and redeploy",
 		type: "system",
 	},
 	async (message, match) => {
@@ -350,21 +350,21 @@ Module(
 				if (err) {
 					return await message.send("```" + stderr + "```");
 				}
-				await message.send("*Restarting...*");
+				await message.send("*Update successful. Checking dependencies...*");
 
 				const dependancy = await updatedDependencies();
 				if (dependancy) {
 					await message.reply("*Dependencies changed, installing new dependencies...*");
-					exec("npm install", (installErr, installStdout, installStderr) => {
+					exec("npm install", async (installErr, installStdout, installStderr) => {
 						if (installErr) {
 							return message.send("```Error installing dependencies: " + installStderr + "```");
 						}
-						exec(require("../package.json").scripts.start);
-						process.exit(1);
+						await message.send("*Dependencies updated successfully. Redeploying...*");
+						await redeploy(message);
 					});
 				} else {
-					exec(require("../package.json").scripts.start);
-					process.exit(1);
+					await message.send("*No dependency changes. Redeploying...*");
+					await redeploy(message);
 				}
 			});
 		} else {
@@ -394,6 +394,106 @@ async function updatedDependencies() {
 		console.error("Error occurred while checking package.json:", error);
 		return false;
 	}
+}
+
+async function redeploy(message) {
+	if (process.env.HEROKU_API_KEY) {
+		await redeployHeroku(message);
+	} else if (process.env.KOYEB_API_KEY) {
+		await redeployKoyeb(message);
+	} else {
+		await message.send("*No deployment platform detected. Please set up Heroku or Koyeb.*");
+		exec(require("../package.json").scripts.start);
+		process.exit(1);
+	}
+}
+
+async function redeployHeroku(message) {
+	exec("git push heroku master", async (err, stdout, stderr) => {
+		if (err) {
+			await message.send("```Error redeploying to Heroku: " + stderr + "```");
+		} else {
+			await message.send("*Successfully redeployed to Heroku*");
+		}
+		exec(require("../package.json").scripts.start);
+		process.exit(1);
+	});
+}
+
+async function redeploy(message) {
+	if (process.env.HEROKU_API_KEY) {
+		await redeployHeroku(message);
+	} else if (process.env.KOYEB_API_KEY) {
+		await redeployKoyeb(message);
+	} else {
+		await message.send("*No deployment platform detected. Please set up Heroku or Koyeb.*");
+		exec(require("../package.json").scripts.start);
+		process.exit(1);
+	}
+}
+
+async function redeployHeroku(message) {
+	exec("git push heroku master", async (err, stdout, stderr) => {
+		if (err) {
+			await message.send("```Error redeploying to Heroku: " + stderr + "```");
+		} else {
+			await message.send("*Successfully redeployed to Heroku*");
+		}
+		exec(require("../package.json").scripts.start);
+		process.exit(1);
+	});
+}
+
+async function redeployKoyeb(message) {
+	const KOYEB_API_URL = "https://app.koyeb.com/v1/deployments";
+	const KOYEB_API_KEY = process.env.KOYEB_API_KEY;
+	const KOYEB_APP_NAME = process.env.KOYEB_APP_NAME;
+	const KOYEB_SERVICE_ID = process.env.KOYEB_SERVICE_ID;
+
+	if (!KOYEB_APP_NAME || !KOYEB_SERVICE_ID) {
+		await message.send("```Error: KOYEB_APP_NAME or KOYEB_SERVICE_ID not set in environment variables```");
+		return;
+	}
+
+	try {
+		const response = await axios.post(
+			KOYEB_API_URL,
+			{
+				deployment: {
+					service_id: KOYEB_SERVICE_ID,
+					definition: {
+						name: KOYEB_APP_NAME,
+						routes: [{ path: "/" }],
+						ports: [{ port: 80 }],
+						env: [{ key: "GIT_BRANCH", value: "refs/heads/master" }],
+						regions: ["fra"],
+						instance_types: ["nano"],
+						scalings: [{ min: 1, max: 1 }],
+						docker: {
+							image_name: "koyeb/demo",
+						},
+					},
+				},
+			},
+			{
+				headers: {
+					"Authorization": `Bearer ${KOYEB_API_KEY}`,
+					"Content-Type": "application/json",
+				},
+			},
+		);
+
+		if (response.status === 201) {
+			await message.send("*Successfully initiated redeployment on Koyeb*");
+		} else {
+			await message.send(`*Unexpected response from Koyeb API: ${response.status}*`);
+		}
+	} catch (error) {
+		await message.send("```Error redeploying to Koyeb: " + error.message + "```");
+	}
+
+	exec(require("../package.json").scripts.start);
+	process.exit(1);
 }
 
 Module(
