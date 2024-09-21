@@ -126,7 +126,8 @@ Module(
 		type: "whatsapp",
 	},
 	async (message, match, m) => {
-		await message.sendFile(m.quoted.download());
+		const media = m.quoted.download();
+		await message.send(media);
 	},
 );
 
