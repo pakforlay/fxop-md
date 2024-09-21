@@ -252,7 +252,7 @@ Module(
 		if (!isadmin) return await message.reply("_I'm not admin_");
 		const jid = parsedJid(match);
 		await client.groupParticipantsUpdate(message.jid, jid, "promote");
-		return await message.sendMessage(message.jid, `_@${jid[0].split("@")[0]} promoted as admin_`, {
+		return await message.send( `_@${jid[0].split("@")[0]} promoted as admin_`, {
 			mentions: [jid],
 		});
 	},
@@ -273,7 +273,7 @@ Module(
 		if (!isadmin) return await message.reply("_I'm not admin_");
 		const jid = parsedJid(match);
 		await client.groupParticipantsUpdate(message.jid, jid, "demote");
-		return await message.sendMessage(message.jid, `_@${jid[0].split("@")[0]} demoted from admin_`, {
+		return await message.send( `_@${jid[0].split("@")[0]} demoted from admin_`, {
 			mentions: [jid],
 		});
 	},
@@ -325,7 +325,7 @@ Module(
 			str += `├ *${result}*\n`;
 		});
 		str += `╰──────────────`;
-		message.sendMessage(message.jid, str);
+		message.send( str);
 	},
 );
 
@@ -343,7 +343,7 @@ Module(
 		for (let mem of participants) {
 			teks += ` @${mem.id.split("@")[0]}\n`;
 		}
-		message.sendMessage(message.jid, teks.trim(), {
+		message.send( teks.trim(), {
 			mentions: participants.map(a => a.id),
 		});
 	},
@@ -362,7 +362,7 @@ Module(
 		if (!match) return message.reply("_Enter or reply to a text to tag_");
 		if (!message.isGroup) return;
 		const { participants } = await message.client.groupMetadata(message.jid);
-		message.sendMessage(message.jid, match, {
+		message.send( match, {
 			mentions: participants.map(a => a.id),
 		});
 	},
@@ -386,7 +386,7 @@ Module(
 		info += `*Total Participants:* ${participants.length}\n`;
 		info += `*Total Admins:* ${admins.length}\n`;
 		info += `*Description:* ${desc || "No description"}`;
-		return await message.sendMessage(message.jid, info, { mentions: [owner, ...admins] });
+		return await message.send( info, { mentions: [owner, ...admins] });
 	},
 );
 
@@ -474,7 +474,7 @@ Module(
 		requests.forEach((request, index) => {
 			requestList += `${index + 1}. @${request.jid.split("@")[0]}\n`;
 		});
-		await message.sendMessage(message.jid, requestList, { mentions: requests.map(r => r.jid) });
+		await message.send( requestList, { mentions: requests.map(r => r.jid) });
 	},
 );
 
@@ -535,7 +535,7 @@ Module(
 		commonParticipants.forEach((participant, index) => {
 			commonList += `${index + 1}. @${participant.split("@")[0]}\n`;
 		});
-		return await message.sendMessage(message.jid, commonList, { mentions: commonParticipants });
+		return await message.send( commonList, { mentions: commonParticipants });
 	},
 );
 

@@ -100,7 +100,7 @@ Module(
 	},
 	async message => {
 		const jid = message.mention[0] || message.reply_message.jid || message.jid;
-		await message.sendMessage(message.jid, jid);
+		await message.send( jid);
 	},
 );
 

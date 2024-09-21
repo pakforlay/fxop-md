@@ -13,11 +13,11 @@ Module(
 		match = match || message.reply_message?.text;
 		if (match) {
 			const buff = await qrcode(match);
-			await message.sendMessage(message.jid, buff, {}, "image");
+			await message.send( buff, {}, "image");
 		} else if (message.reply_message?.image) {
 			const buffer = await m.quoted.download();
 			const data = await readQr(buffer);
-			await message.sendMessage(message.jid, data);
+			await message.send( data);
 		} else {
 			await message.sendReply(`\`\`\`Wrong Format\`\`\`\n\n${message.prefix}qr (Replied Image)\n\n${message.prefix}qr (text)`);
 		}

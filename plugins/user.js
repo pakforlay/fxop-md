@@ -23,7 +23,7 @@ Module(
 
 		if (warnInfo.warnCount >= WARN_COUNT) {
 			const jid = parsedJid(userId);
-			await message.sendMessage(message.jid, "Warn limit exceeded. Kicking user.");
+			await message.send( "Warn limit exceeded. Kicking user.");
 			return await message.client.groupParticipantsUpdate(message.jid, jid, "remove");
 		}
 	},

@@ -12,7 +12,7 @@ Module(
 		if (!message.reply_message) return await message.reply("_Reply Photo/Video_");
 		const buff = await m.quoted.download();
 		const [packname, author] = config.STICKER_PACK.split(";");
-		message.sendMessage(message.jid, buff, { packname, author }, "sticker");
+		message.send(buff, { packname, author }, "sticker");
 	},
 );
 
@@ -28,7 +28,7 @@ Module(
 
 		const [packname, author] = config.STICKER_PACK.split(";");
 		const buff = await m.quoted.download();
-		message.sendMessage(message.jid, buff, { packname, author }, "sticker");
+		message.send(buff, { packname, author }, "sticker");
 	},
 );
 

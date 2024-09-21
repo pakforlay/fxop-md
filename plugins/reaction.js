@@ -15,12 +15,12 @@ Module(
 	async (message, match) => {
 		if (match === "on") {
 			autoreactEnabled = true;
-			await message.sendMessage("Autoreact is now enabled!");
+			await message.send("Autoreact is now enabled!");
 		} else if (match === "off") {
 			autoreactEnabled = false;
-			await message.sendMessage("Autoreact is now disabled!");
+			await message.send("Autoreact is now disabled!");
 		} else {
-			await message.sendMessage(`Autoreact is currently ${autoreactEnabled ? "enabled" : "disabled"}. Use 'on' or 'off' to toggle.`);
+			await message.send(`Autoreact is currently ${autoreactEnabled ? "enabled" : "disabled"}. Use 'on' or 'off' to toggle.`);
 		}
 	},
 );
