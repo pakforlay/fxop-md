@@ -1,6 +1,9 @@
 const { Module, mode, qrcode, isUrl, Bitly, removeBg, tinyurl, ssweb, shortenurl, upload, IronMan, ffmpeg, parseTimeToSeconds } = require("../lib");
-const { fromBuffer } = require("file-type");
+const sharp = require("sharp");
+const axios = require("axios");
+const cheerio = require("cheerio");
 const config = require("../config");
+const { fromBuffer } = require("file-type");
 
 Module(
 	{
@@ -13,11 +16,11 @@ Module(
 		match = match || message.reply_message?.text;
 		if (match) {
 			const buff = await qrcode(match);
-			await message.send( buff, {}, "image");
+			await message.send(buff, {}, "image");
 		} else if (message.reply_message?.image) {
 			const buffer = await m.quoted.download();
 			const data = await readQr(buffer);
-			await message.send( data);
+			await message.send(data);
 		} else {
 			await message.sendReply(`\`\`\`Wrong Format\`\`\`\n\n${message.prefix}qr (Replied Image)\n\n${message.prefix}qr (text)`);
 		}
@@ -95,7 +98,7 @@ Module(
 
 Module(
 	{
-		pattern: "shortlink",
+		pattern: "slink",
 		fromMe: mode,
 		desc: "Shortens link URL",
 		type: "tools",
@@ -188,7 +191,7 @@ Module(
 		desc: "Trim the video or audio",
 		type: "tools",
 	},
-	async (message, match, m) => {
+	async (message, match, m, client) => {
 		if (!message.reply_message || (!message.reply_message.video && !message.reply_message.audio)) {
 			return await message.sendMessage("Reply to a media file");
 		}
@@ -204,5 +207,78 @@ Module(
 		const args = ["-ss", `${startSeconds}`, "-t", `${duration}`, "-c", "copy"];
 		const trimmedBuffer = await ffmpeg(buffer, args, ext, ext);
 		message.sendFile(trimmedBuffer);
+	},
+);
+
+Module(
+	{
+		pattern: "resize",
+		fromMe: mode,
+		desc: "Resize an uploaded image",
+		type: "tools",
+	},
+	async (message, match, m, client) => {
+		const dimensions = match.split(" ");
+		const width = parseInt(dimensions[0]);
+		const height = parseInt(dimensions[1]);
+		if (!m.quoted) return await message.reply("Please reply to an image.");
+		const inputBuffer = await m.quoted.download();
+		const outputBuffer = await sharp(inputBuffer).resize(width, height).toBuffer();
+		await message.sendFile(outputBuffer);
+	},
+);
+
+Module(
+	{
+		pattern: "topdf",
+		fromMe: mode,
+		desc: "Convert text to PDF",
+		type: "tools",
+	},
+	async (message, match, m, client) => {
+		if (!message.reply_message?.image) return await message.reply("Reply to an image");
+		let dlimg = m.quoted.download();
+		const result = await convertImageBufferToPdf(dlimg);
+		return await sendFile(result);
+	},
+);
+
+Module(
+	{
+		pattern: "fetch",
+		fromMe: mode,
+		desc: "Fetch data from an API",
+		type: "user",
+	},
+	async (message, match) => {
+		if (!match) return await message.sendReply("_Provide URL | API to fetch from_");
+		const endpoint = match.slice(10).trim();
+		try {
+			const response = await axios.get(endpoint);
+			await message.send(JSON.stringify(response.data, null, 2));
+		} catch (error) {
+			await message.reply("Error fetching data.");
+		}
+	},
+);
+
+Module(
+	{
+		pattern: "scrape",
+		fromMe: mode,
+		desc: "Scrape data from a website",
+		type: "tools",
+	},
+	async (message, match) => {
+		if (!match) return await message.sendReply("_Provide URL_");
+		const url = match.slice(6).trim();
+		try {
+			const { data } = await axios.get(url);
+			const $ = cheerio.load(data);
+			const title = $("title").text();
+			await message.send(`Title: ${title}`);
+		} catch (error) {
+			await message.reply("Error scraping data.");
+		}
 	},
 );
