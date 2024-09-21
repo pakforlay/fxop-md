@@ -423,8 +423,8 @@ Module(
 		desc: "privacy setting profile picture",
 		type: "whatsapp",
 	},
-	async (message, match, m, client, prefix) => {
-		if (!match) return await message.send(`_*Example:-* ${prefix} all_\n_to change *profile picture*  privacy settings_`);
+	async (message, match, m, client) => {
+		if (!match) return await message.send(`_*Example:-* ${message.prefix} all_\n_to change *profile picture*  privacy settings_`);
 		const available_privacy = ["all", "contacts", "contact_blacklist", "none"];
 		if (!available_privacy.includes(match)) return await message.send(`_action must be *${available_privacy.join("/")}* values_`);
 		await client.updateProfilePicturePrivacy(match);
@@ -439,8 +439,8 @@ Module(
 		desc: "privacy for my status",
 		type: "whatsapp",
 	},
-	async (message, match, m, client, prefix) => {
-		if (!match) return await message.send(`_*Example:-* ${prefix} all_\n_to change *status*  privacy settings_`);
+	async (message, match, m, client) => {
+		if (!match) return await message.send(`_*Example:-* ${message.prefix} all_\n_to change *status*  privacy settings_`);
 		const available_privacy = ["all", "contacts", "contact_blacklist", "none"];
 		if (!available_privacy.includes(match)) return await message.send(`_action must be *${available_privacy.join("/")}* values_`);
 		await client.updateStatusPrivacy(match);

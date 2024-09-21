@@ -402,7 +402,7 @@ Module(
 		fromMe: true,
 		dontAddCommandList: true,
 	},
-	async (message, match, m, client, prefix) => {
+	async (message, match, m, client, msg, ms) => {
 		const content = message.text;
 		if (!content) return;
 		if (!(content.startsWith(">") || content.startsWith("$") || content.startsWith("|"))) return;
