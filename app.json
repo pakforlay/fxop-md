@@ -70,13 +70,5 @@
 		{
 			"url": "https://github.com/pathwaysmedical/heroku-buildpack-tesseract"
 		}
-	],
-	"addons": [
-		{
-			"plan": "heroku-postgresql",
-			"options": {
-				"version": "13"
-			}
-		}
 	]
 }
