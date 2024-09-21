@@ -10,9 +10,9 @@ Module(
 	},
 	async (message, match, m) => {
 		if (!message.reply_message) return await message.reply("_Reply Photo/Video_");
-		const buff = await m.quoted.download();
+		let buff = await m.quoted.download();
 		const [packname, author] = config.STICKER_PACK.split(";");
-		message.send(buff, { packname, author }, "sticker");
+		message.sendMessage(message.chat, buff, { packname, author }, "sticker");
 	},
 );
 
@@ -27,8 +27,8 @@ Module(
 		if (!message.reply_message.sticker) return await message.reply("_Reply to a sticker_");
 
 		const [packname, author] = config.STICKER_PACK.split(";");
-		const buff = await m.quoted.download();
-		message.send(buff, { packname, author }, "sticker");
+		let buff = await m.quoted.download();
+		message.sendMessage(message.chat,buff, { packname, author }, "sticker");
 	},
 );
 
@@ -42,7 +42,7 @@ Module(
 	async (message, match, m) => {
 		if (!message.reply_message.sticker) return await message.reply("_Not a sticker_");
 
-		const buff = await m.quoted.download();
+		let buff = await m.quoted.download();
 		return await message.send(buff);
 	},
 );
