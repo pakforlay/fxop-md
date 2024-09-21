@@ -1,4 +1,5 @@
-const { Module, parsedJid, isAdmin } = require("../lib/");
+const { Module, parsedJid } = require("../lib/");
+const { isAdmin } = require("../lib/src/functions");
 const { banUser, unbanUser, isBanned } = require("../lib/db/ban");
 const { setMessage, getMessage, delMessage, getStatus, toggleStatus } = require("../lib/db").Greetings;
 const { getAntilink, updateAntilink, createAntilink } = require("../lib/db/antilink");
