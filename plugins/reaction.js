@@ -25,7 +25,7 @@ Module(
 	},
 );
 
-command(
+Module(
 	{
 		on: "message",
 		fromMe: false,
