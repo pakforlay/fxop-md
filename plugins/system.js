@@ -1,4 +1,4 @@
-const { Module, mode, getBuffer, getJson, getCpuInfo, runtime, commands, removePluginHandler, installPluginHandler, listPluginsHandler } = require("../lib");
+const { Module, mode, getBuffer, getJson, getCpuInfo, runtime, commands, removePluginHandler, installPluginHandler, listPluginsHandler, tiny, PausedChats } = require("../lib");
 const os = require("os");
 const util = require("util");
 const axios = require("axios");
@@ -6,7 +6,6 @@ const simplegit = require("simple-git");
 const git = simplegit();
 const { TIME_ZONE, BRANCH, BOT_INFO } = require("../config");
 const { exec, execSync } = require("child_process");
-const { PausedChats } = require("../lib/db");
 var branch = BRANCH;
 
 function getRAMUsage() {
@@ -228,10 +227,10 @@ Description: ${plugin.description || "No description available"}\`\`\``);
 			Array.from(categories)
 				.sort()
 				.forEach(category => {
-					menuText += `\n\`\`\`╭── ${category.toUpperCase()} ────`;
+					menuText += `\n\`\`\`╭── *${tiny(category)}* ────`;
 					const categoryCommands = commandList.filter(cmd => cmd.category === category);
 					categoryCommands.forEach(({ name }) => {
-						menuText += `\n│ ${name.toUpperCase().trim()}`;
+						menuText += `\n│ ${tiny(name)}`;
 					});
 					menuText += `\n╰──────────────\`\`\`\n`;
 				});
