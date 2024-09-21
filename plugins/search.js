@@ -1,5 +1,6 @@
 const { Module, mode, getJson, lyrics, sleep, Google, getFloor, onwhatsapp } = require("../lib");
 const moment = require("moment");
+const axios = require("axios");
 
 Module(
 	{
@@ -154,5 +155,214 @@ Module(
 		const phoneNumber = match.trim();
 		const result = await onwhatsapp(phoneNumber);
 		return await message.send(result, { quoted: message });
+	},
+);
+
+Module(
+	{
+		pattern: "wiki ?(.*)",
+		fromMe: mode,
+		desc: "Search Wikipedia for a query",
+		type: "search",
+	},
+	async (message, match) => {
+		if (!match) return await message.sendMessage("Please provide a search query.");
+		const query = encodeURIComponent(match);
+		const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${query}`;
+		const response = await getJson(url);
+		if (response.type === "standard") {
+			await message.send(`*Wikipedia result:*\n\nTitle: ${response.title}\n\n${response.extract}\n\nRead more: ${response.content_urls.desktop.page}`);
+		} else {
+			await message.send("No Wikipedia article found for your query.");
+		}
+	},
+);
+
+Module(
+	{
+		pattern: "movie ?(.*)",
+		fromMe: mode,
+		desc: "Get movie information",
+		type: "search",
+	},
+	async (message, match) => {
+		if (!match) return await message.sendReply("Please provide a movie title.");
+		const query = encodeURIComponent(match);
+		const url = `http://www.omdbapi.com/?t=${query}&apikey=4fc4cf8c`;
+		const response = await axios.get(url);
+		const movie = response.data;
+		if (movie.Response === "True") {
+			await message.send(`*Title:* ${movie.Title}\n*Year:* ${movie.Year}\n*Genre:* ${movie.Genre}\n*Plot:* ${movie.Plot}\n*IMDB Rating:* ${movie.imdbRating}\n\n*More Info:* ${movie.Poster}`);
+		} else {
+			await message.send("Movie not found.");
+		}
+	},
+);
+
+Module(
+	{
+		pattern: "define ?(.*)",
+		fromMe: mode,
+		desc: "Get the definition of a word",
+		type: "search",
+	},
+	async (message, match) => {
+		if (!match) return await message.sendReply("Please provide a word to define.");
+
+		const query = encodeURIComponent(match);
+		const url = `https://api.dictionaryapi.dev/api/v2/entries/en/${query}`;
+		const response = await axios.get(url);
+		const definition = response.data[0];
+		if (definition) {
+			await message.send(`*Word:* ${definition.word}\n*Meaning:* ${definition.meanings[0].definitions[0].definition}\n*Example:* ${definition.meanings[0].definitions[0].example || "N/A"}`);
+		} else {
+			await message.send("Definition not found.");
+		}
+	},
+);
+
+Module(
+	{
+		pattern: "news ?(.*)",
+		fromMe: mode,
+		desc: "Get the latest news on a topic",
+		type: "search",
+	},
+	async (message, match) => {
+		if (!match) return await message.sendReply("Please provide a topic for news.");
+
+		const query = encodeURIComponent(match);
+		const url = `https://newsapi.org/v2/everything?q=${query}&apiKey=6798c308cb454b4cbba9af98ee488507&pageSize=1`;
+		const response = await axios.get(url);
+		const news = response.data.articles[0];
+		if (news) {
+			await message.send(`*Headline:* ${news.title}\n*Source:* ${news.source.name}\n*Published at:* ${news.publishedAt}\n\n${news.description}\n\nRead more: ${news.url}`);
+		} else {
+			await message.send("No news found for your query.");
+		}
+	},
+);
+
+Module(
+	{
+		pattern: "lyrics2 ?(.*)",
+		fromMe: mode,
+		desc: "Search for song lyrics",
+		type: "search",
+	},
+	async (message, match) => {
+		if (!match) return await message.sendReply("_Please provide a song title or artist._");
+
+		const query = encodeURIComponent(match);
+		const url = `https://api.lyrics.ovh/v1/${query}`;
+		const response = await axios.get(url);
+		if (response.data.lyrics) {
+			await message.send(`*Lyrics:*\n\n${response.data.lyrics}`);
+		} else {
+			await message.send("Lyrics not found.");
+		}
+	},
+);
+
+Module(
+	{
+		pattern: "crypto ?(.*)",
+		fromMe: mode,
+		desc: "Get current price of a cryptocurrency",
+		type: "search",
+	},
+	async (message, match) => {
+		if (!match) return await message.sendReply("Please provide a cryptocurrency symbol (e.g., bitcoin, ethereum).");
+		const query = encodeURIComponent(match.toLowerCase());
+		const url = `https://api.coingecko.com/api/v3/simple/price?ids=${query}&vs_currencies=usd`;
+		const response = await axios.get(url);
+		const priceData = response.data;
+		if (priceData[query]) {
+			await message.send(`*${match.toUpperCase()} Price:* $${priceData[query].usd}`);
+		} else {
+			await message.send("Cryptocurrency not found.");
+		}
+	},
+);
+
+Module(
+	{
+		pattern: "anime ?(.*)",
+		fromMe: mode,
+		desc: "Search for anime information",
+		type: "search",
+	},
+	async (message, match) => {
+		if (!match) return await message.sendReply("Please provide an anime title.");
+
+		const query = encodeURIComponent(match);
+		const url = `https://api.jikan.moe/v4/anime?q=${query}&limit=1`;
+		const response = await axios.get(url);
+		const anime = response.data.data[0];
+		if (anime) {
+			await message.send(`*Title:* ${anime.title}\n*Episodes:* ${anime.episodes}\n*Status:* ${anime.status}\n*Score:* ${anime.score}\n*Synopsis:* ${anime.synopsis}\n\n*More Info:* ${anime.url}`);
+		} else {
+			await message.send("Anime not found.");
+		}
+	},
+);
+
+Module(
+	{
+		pattern: "github ?(.*)",
+		fromMe: mode,
+		desc: "Search for a GitHub user",
+		type: "search",
+	},
+	async (message, match) => {
+		if (!match) return await message.sendReply("Please provide a GitHub username.");
+
+		const query = encodeURIComponent(match);
+		const url = `https://api.github.com/users/${query}`;
+		const response = await axios.get(url);
+		const user = response.data;
+		if (user) {
+			await message.send(`*Name:* ${user.name || "N/A"}\n*Username:* ${user.login}\n*Bio:* ${user.bio || "N/A"}\n*Public Repos:* ${user.public_repos}\n*Followers:* ${user.followers}\n\n*Profile URL:* ${user.html_url}`);
+		} else {
+			await message.send("GitHub user not found.");
+		}
+	},
+);
+
+Module(
+	{
+		pattern: "cat",
+		fromMe: mode,
+		desc: "Get a random cat image",
+		type: "search",
+	},
+	async message => {
+		const url = `https://api.thecatapi.com/v1/images/search`;
+		const response = await axios.get(url);
+		const cat = response.data[0];
+		if (cat) {
+			await message.send(cat.url, "image", "Here's a random cat for you!");
+		} else {
+			await message.sendMessage("Could not fetch a cat image.");
+		}
+	},
+);
+
+Module(
+	{
+		pattern: "dog",
+		fromMe: mode,
+		desc: "Get a random dog image",
+		type: "search",
+	},
+	async message => {
+		const url = `https://dog.ceo/api/breeds/image/random`;
+		const response = await axios.get(url);
+		const dog = response.data.message;
+		if (dog) {
+			await message.sendFileFromUrl(dog, "image", "Here's a random dog for you!");
+		} else {
+			await message.sendMessage("Could not fetch a dog image.");
+		}
 	},
 );
