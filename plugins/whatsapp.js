@@ -127,7 +127,7 @@ Module(
 	},
 	async (message, match, m) => {
 		const media = m.quoted.download();
-		await message.send(media);
+		await message.sendFile(media);
 	},
 );
 
