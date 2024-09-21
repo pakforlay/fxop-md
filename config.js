@@ -28,6 +28,7 @@ module.exports = {
 	WELCOME_MSG: process.env.WELCOME_MSG || "Hi @user Welcome to @gname",
 	GOODBYE_MSG: process.env.GOODBYE_MSG || "Hi @user It was Nice Seeing you",
 	ANTILINK: process.env.ANTILINK || false,
+	AUTO_REACT: process.env.AUTO_REACT || false,
 	AUTO_READ: toBool(process.env.AUTO_READ) || false,
 	AUTO_STATUS_READ: toBool(process.env.AUTO_STATUS_READ) || false,
 	STICKER_PACK: process.env.AUTHOR || "Astro;FXBOTTO",
