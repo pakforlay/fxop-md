@@ -6,7 +6,7 @@
   </a>
 </p>
 
-This repository features a customizable WhatsApp bot built with the Baileys library, designed for easy deployment across various platforms.
+A Simple WhatsApp bot built with the Baileys library, designed for easy deployment across various platforms.
 
 ---
 
