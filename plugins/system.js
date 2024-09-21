@@ -227,20 +227,20 @@ Description: ${plugin.description || "No description available"}\`\`\``);
 			Array.from(categories)
 				.sort()
 				.forEach(category => {
-					menuText += `\n\`\`\`╭── *${tiny(category)}* ────`;
+					menuText += `\n╭── *${category}* ────`;
 					const categoryCommands = commandList.filter(cmd => cmd.category === category);
 					categoryCommands.forEach(({ name }) => {
-						menuText += `\n│ ${tiny(name)}`;
+						menuText += `\n│ ${name}`;
 					});
-					menuText += `\n╰──────────────\`\`\`\n`;
+					menuText += `\n╰──────────────\n`;
 				});
 
 			try {
 				const media = await getBuffer(BOT_INFO.split(";")[2]);
-				return await message.send(media, { caption: menuText.trim() });
+				return await message.send(media, { caption: tiny(menuText.trim()) });
 			} catch (error) {
 				console.error("Error fetching or sending media:", error);
-				return await message.send(menuText.trim());
+				return await message.send(tiny(menuText.trim()));
 			}
 		}
 	},
