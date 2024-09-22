@@ -27,7 +27,7 @@ Module(
 	async (message, match, m) => {
 		if (!message.reply_message.image) return await message.reply("_Reply to a photo_");
 
-		const buff = await m.quoted.download();
+		let buff = await m.quoted.download();
 		await message.setProfilePicture(message.user, buff);
 		await message.reply("_Profile Picture Updated_");
 	},
@@ -170,7 +170,18 @@ Module(
 // 		}
 // 	},
 // );
-
+Module(
+	{
+		pattern: "fds",
+		fromMe: true,
+		desc: "Saves WhatsApp Messages",
+		type: "whatsappp",
+	},
+	async (message, match, m, client) => {
+		if (!message.reply_message?.image && !message.reply_message.video && !message.reply_message.audio) return await message.sendReply("_Reply A Message to Save_");
+		await message.forward(message.user, m.quoted.message, { quoted: message });
+	},
+);
 Module(
 	{
 		pattern: "save ?(.*)",
