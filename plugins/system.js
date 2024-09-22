@@ -297,7 +297,7 @@ Module(
 	},
 	async m => {
 		const msg = await m.reply("Fetching Users");
-		const data = await getJson("https://socket-counter-yb8q.onrender.com/active-users");
+		const data = await getJson("https://socket-counter.vercel.app/active-users");
 		const users = data.activeUsers;
 		return await msg.edit(`*_${users} active Users on FX-BOT_*`);
 	},
