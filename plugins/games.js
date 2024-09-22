@@ -1,18 +1,40 @@
 const { Module, mode } = require("../lib");
 const axios = require("axios");
 const words = require("an-array-of-english-words");
+const fs = require("fs").promises;
+const path = require("path");
 
 let wcgGames = {};
-const GAME_DURATION = 180000; // 3 minutes
+const GAME_DURATION = 180000;
 const WORD_MIN_LENGTH = 3;
 const WORD_MAX_LENGTH = 15;
 const DIFFICULTY_LEVELS = ["easy", "medium", "hard"];
 const POINTS_PER_WORD = 10;
 const BONUS_POINTS = 5;
 const PENALTY_POINTS = 5;
+const LEADERBOARD_FILE = path.join(__dirname, "..", "lib", "games", "wcg.json");
 
-// Create a Set from the words array for faster lookup
 const wordSet = new Set(words);
+async function loadLeaderboard() {
+	try {
+		const data = await fs.readFile(LEADERBOARD_FILE, "utf8");
+		return JSON.parse(data);
+	} catch (error) {
+		if (error.code === "ENOENT") {
+			return {};
+		}
+		console.error("Error loading leaderboard:", error);
+		return {};
+	}
+}
+
+async function saveLeaderboard(leaderboard) {
+	try {
+		await fs.writeFile(LEADERBOARD_FILE, JSON.stringify(leaderboard, null, 2));
+	} catch (error) {
+		console.error("Error saving leaderboard:", error);
+	}
+}
 
 Module(
 	{
@@ -123,18 +145,39 @@ async function endGame(chatId, reason = "Time's up!") {
 
 	clearTimeout(game.timer);
 
-	let leaderboard = Object.entries(game.players)
+	let leaderboard = await loadLeaderboard();
+
+	// Update leaderboard with game results
+	for (const [playerId, playerData] of Object.entries(game.players)) {
+		if (!leaderboard[playerId]) {
+			leaderboard[playerId] = { totalScore: 0, gamesPlayed: 0 };
+		}
+		leaderboard[playerId].totalScore += playerData.score;
+		leaderboard[playerId].gamesPlayed += 1;
+	}
+
+	await saveLeaderboard(leaderboard);
+
+	let gameLeaderboard = Object.entries(game.players)
 		.sort(([, a], [, b]) => b.score - a.score)
 		.map(([playerId, player], index) => `${index + 1}. ${playerId}: ${player.score} points`)
 		.join("\n");
 
-	const endMessage = `${reason}\nGame Over! Final Scores:\n${leaderboard}`;
+	const endMessage = `${reason}\nGame Over! Final Scores:\n${gameLeaderboard}\n\nOverall Leaderboard:\n${getOverallLeaderboard(leaderboard)}`;
 	await axios.post(`YOUR_BOT_API_ENDPOINT`, {
 		chatId: chatId,
 		message: endMessage,
 	});
 
 	delete wcgGames[chatId];
+}
+
+function getOverallLeaderboard(leaderboard) {
+	return Object.entries(leaderboard)
+		.sort(([, a], [, b]) => b.totalScore - a.totalScore)
+		.slice(0, 5) // Top 5 players
+		.map(([playerId, data], index) => `${index + 1}. ${playerId}: ${data.totalScore} points (${data.gamesPlayed} games)`)
+		.join("\n");
 }
 
 // Hint command
