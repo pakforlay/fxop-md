@@ -62,31 +62,45 @@ Module(
 
 Module(
 	{
-		pattern: "block ?(.*)",
+		pattern: "block",
 		fromMe: true,
 		desc: "Block a person",
-		type: "whatsapp",
+		type: "user",
 	},
 	async (message, match) => {
-		const jid = message.isGroup ? message.mention[0] || (message.reply_message ? message.reply_message.jid : null) : message.jid;
-		if (!jid) return await message.reply(message.isGroup ? "_Reply to a person or mention_" : "_Blocked_");
-		await message.sendMessage(message.isGroup ? `_@${jid.split("@")[0]} Blocked_` : "_Blocked_", { mentions: [jid] });
-		return await message.blockContact(jid);
+		if (message.isGroup) {
+			let jid = message.mention[0] || message.reply_message.jid;
+			if (!jid) return await message.reply("_Reply to a person or mention_");
+			await message.blockContact(jid);
+			return await message.sendMessage(`_@${jid.split("@")[0]} Blocked_`, {
+				mentions: [jid],
+			});
+		} else {
+			await message.blockContact(message.jid);
+			return await message.reply("_User blocked_");
+		}
 	},
 );
 
 Module(
 	{
-		pattern: "unblock ?(.*)",
+		pattern: "unblock",
 		fromMe: true,
 		desc: "Unblock a person",
-		type: "whatsapp",
+		type: "user",
 	},
 	async (message, match) => {
-		const jid = message.isGroup ? message.mention[0] || (message.reply_message ? message.reply_message.jid : null) : message.jid;
-		if (!jid) return await message.reply(message.isGroup ? "_Reply to a person or mention_" : "_User unblocked_");
-		await message.sendMessage(message.isGroup ? `_@${jid.split("@")[0]} unblocked_` : "_User unblocked_", { mentions: [jid] });
-		return await message.unblockContact(jid);
+		if (message.isGroup) {
+			let jid = message.mention[0] || message.reply_message.jid;
+			if (!jid) return await message.reply("_Reply to a person or mention_");
+			await message.blockContact(jid);
+			return await message.sendMessage(message.jid, `_@${jid.split("@")[0]} unblocked_`, {
+				mentions: [jid],
+			});
+		} else {
+			await message.unblockContact(message.jid);
+			return await message.reply("_User unblocked_");
+		}
 	},
 );
 

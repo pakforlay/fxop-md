@@ -12,7 +12,7 @@
 	"dependencies": {
 		"an-array-of-english-words": "*",
 		"axios": "*",
-		"baileys": "*",
+		"baileys": "github:FXastro/Baileys",
 		"bitly": "^4.1.1",
 		"browser-id3-writer": "^4.4.0",
 		"cheerio": "^1.0.0-rc.12",
