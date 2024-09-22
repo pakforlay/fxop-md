@@ -1,4 +1,4 @@
-const { command, isPrivate } = require("../../lib");
+const { Module, mode } = require("../lib");
 const axios = require("axios");
 const words = require("an-array-of-english-words");
 
@@ -14,10 +14,10 @@ const PENALTY_POINTS = 5;
 // Create a Set from the words array for faster lookup
 const wordSet = new Set(words);
 
-command(
+Module(
 	{
 		pattern: "wcg",
-		fromMe: isPrivate,
+		fromMe: mode,
 		desc: "Start a Word Chain Game.",
 		type: "game",
 	},
@@ -50,7 +50,7 @@ command(
 	},
 );
 
-command(
+Module(
 	{
 		on: "text",
 		fromMe: false,
@@ -138,7 +138,7 @@ async function endGame(chatId, reason = "Time's up!") {
 }
 
 // Hint command
-command(
+Module(
 	{
 		pattern: "wcghint",
 		fromMe: false,
