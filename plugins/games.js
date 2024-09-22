@@ -1,52 +1,57 @@
-const { Module, mode } = require("../lib");
-const axios = require("axios");
+const { Module } = require("../lib");
 const words = require("an-array-of-english-words");
 const fs = require("fs").promises;
 const path = require("path");
 
-let wcgGames = {};
-const GAME_DURATION = 180000;
+const GAME_DURATION = 180000; // 3 minutes
 const WORD_MIN_LENGTH = 3;
 const WORD_MAX_LENGTH = 15;
 const DIFFICULTY_LEVELS = ["easy", "medium", "hard"];
 const POINTS_PER_WORD = 10;
 const BONUS_POINTS = 5;
 const PENALTY_POINTS = 5;
-const LEADERBOARD_FILE = path.join(__dirname, "..", "lib", "games", "wcg.json");
+const GAME_DATA_FILE = path.join(__dirname, "..", "lib", "games", "wcg.json");
 
+// Create a Set from the words array for faster lookup
 const wordSet = new Set(words);
-async function loadLeaderboard() {
+
+// Load game data from file
+async function loadGameData() {
 	try {
-		const data = await fs.readFile(LEADERBOARD_FILE, "utf8");
+		const data = await fs.readFile(GAME_DATA_FILE, "utf8");
 		return JSON.parse(data);
 	} catch (error) {
 		if (error.code === "ENOENT") {
-			return {};
+			// File doesn't exist, return default structure
+			return { leaderboard: {}, activeGames: {} };
 		}
-		console.error("Error loading leaderboard:", error);
-		return {};
+		console.error("Error loading game data:", error);
+		return { leaderboard: {}, activeGames: {} };
 	}
 }
 
-async function saveLeaderboard(leaderboard) {
+// Save game data to file
+async function saveGameData(gameData) {
 	try {
-		await fs.writeFile(LEADERBOARD_FILE, JSON.stringify(leaderboard, null, 2));
+		await fs.writeFile(GAME_DATA_FILE, JSON.stringify(gameData, null, 2));
 	} catch (error) {
-		console.error("Error saving leaderboard:", error);
+		console.error("Error saving game data:", error);
 	}
 }
 
 Module(
 	{
 		pattern: "wcg",
-		fromMe: mode,
+		fromMe: false,
 		desc: "Start a Word Chain Game.",
 		type: "game",
 	},
 	async (message, match) => {
 		const chatId = message.key.remoteJid;
 
-		if (wcgGames[chatId]) {
+		let gameData = await loadGameData();
+
+		if (gameData.activeGames[chatId]) {
 			return message.reply("A Word Chain Game is already in progress in this chat.");
 		}
 
@@ -55,20 +60,24 @@ Module(
 			return message.reply(`Please specify a valid difficulty level: ${DIFFICULTY_LEVELS.join(", ")}`);
 		}
 
-		wcgGames[chatId] = {
+		gameData.activeGames[chatId] = {
 			players: {},
 			currentWord: "",
-			usedWords: new Set(),
+			usedWords: [],
 			startTime: Date.now(),
 			difficulty: difficulty,
-			timer: setTimeout(() => endGame(chatId), GAME_DURATION),
 		};
 
 		const startWord = getRandomWord();
-		wcgGames[chatId].currentWord = startWord;
-		wcgGames[chatId].usedWords.add(startWord);
+		gameData.activeGames[chatId].currentWord = startWord;
+		gameData.activeGames[chatId].usedWords.push(startWord);
+
+		await saveGameData(gameData);
 
 		message.reply(`Word Chain Game started! Difficulty: ${difficulty}\nThe starting word is: ${startWord}\nYou have 3 minutes. Go!`);
+
+		// Set timeout to end the game
+		setTimeout(() => endGame(chatId), GAME_DURATION);
 	},
 );
 
@@ -84,8 +93,10 @@ Module(
 		const userId = message.sender;
 		const userWord = message.text.trim().toLowerCase();
 
-		if (wcgGames[chatId] && isValidWord(userWord, chatId)) {
-			const game = wcgGames[chatId];
+		let gameData = await loadGameData();
+
+		if (gameData.activeGames[chatId] && isValidWord(userWord, chatId, gameData)) {
+			const game = gameData.activeGames[chatId];
 
 			if (!game.players[userId]) {
 				game.players[userId] = { score: 0, streak: 0 };
@@ -101,21 +112,22 @@ Module(
 			}
 
 			game.currentWord = userWord;
-			game.usedWords.add(userWord);
+			game.usedWords.push(userWord);
+
+			await saveGameData(gameData);
 
 			message.reply(`Valid word! +${points} points. The new word is: ${userWord}`);
 
 			if (isGameWinningWord(userWord)) {
-				clearTimeout(game.timer);
 				endGame(chatId, `${message.pushName} won with the word "${userWord}"!`);
 			}
 		}
 	},
 );
 
-function isValidWord(word, chatId) {
-	const game = wcgGames[chatId];
-	return word.length >= WORD_MIN_LENGTH && word.length <= WORD_MAX_LENGTH && word[0] === game.currentWord[game.currentWord.length - 1] && wordSet.has(word) && !game.usedWords.has(word);
+function isValidWord(word, chatId, gameData) {
+	const game = gameData.activeGames[chatId];
+	return word.length >= WORD_MIN_LENGTH && word.length <= WORD_MAX_LENGTH && word[0] === game.currentWord[game.currentWord.length - 1] && wordSet.has(word) && !game.usedWords.includes(word);
 }
 
 function calculatePoints(word, difficulty) {
@@ -140,36 +152,31 @@ function getRandomWord() {
 }
 
 async function endGame(chatId, reason = "Time's up!") {
-	const game = wcgGames[chatId];
+	let gameData = await loadGameData();
+	const game = gameData.activeGames[chatId];
 	if (!game) return;
-
-	clearTimeout(game.timer);
-
-	let leaderboard = await loadLeaderboard();
 
 	// Update leaderboard with game results
 	for (const [playerId, playerData] of Object.entries(game.players)) {
-		if (!leaderboard[playerId]) {
-			leaderboard[playerId] = { totalScore: 0, gamesPlayed: 0 };
+		if (!gameData.leaderboard[playerId]) {
+			gameData.leaderboard[playerId] = { totalScore: 0, gamesPlayed: 0 };
 		}
-		leaderboard[playerId].totalScore += playerData.score;
-		leaderboard[playerId].gamesPlayed += 1;
+		gameData.leaderboard[playerId].totalScore += playerData.score;
+		gameData.leaderboard[playerId].gamesPlayed += 1;
 	}
-
-	await saveLeaderboard(leaderboard);
 
 	let gameLeaderboard = Object.entries(game.players)
 		.sort(([, a], [, b]) => b.score - a.score)
 		.map(([playerId, player], index) => `${index + 1}. ${playerId}: ${player.score} points`)
 		.join("\n");
 
-	const endMessage = `${reason}\nGame Over! Final Scores:\n${gameLeaderboard}\n\nOverall Leaderboard:\n${getOverallLeaderboard(leaderboard)}`;
-	await axios.post(`YOUR_BOT_API_ENDPOINT`, {
-		chatId: chatId,
-		message: endMessage,
-	});
+	const endMessage = `${reason}\nGame Over! Final Scores:\n${gameLeaderboard}\n\nOverall Leaderboard:\n${getOverallLeaderboard(gameData.leaderboard)}`;
 
-	delete wcgGames[chatId];
+	// Send the end message using your bot's message sending method
+	// For example: message.reply(endMessage);
+
+	delete gameData.activeGames[chatId];
+	await saveGameData(gameData);
 }
 
 function getOverallLeaderboard(leaderboard) {
@@ -180,7 +187,6 @@ function getOverallLeaderboard(leaderboard) {
 		.join("\n");
 }
 
-// Hint command
 Module(
 	{
 		pattern: "wcghint",
@@ -192,25 +198,29 @@ Module(
 		const chatId = message.key.remoteJid;
 		const userId = message.sender;
 
-		if (!wcgGames[chatId]) {
+		let gameData = await loadGameData();
+
+		if (!gameData.activeGames[chatId]) {
 			return message.reply("No Word Chain Game is currently active in this chat.");
 		}
 
-		const game = wcgGames[chatId];
+		const game = gameData.activeGames[chatId];
 		if (!game.players[userId]) {
 			return message.reply("You haven't participated in the game yet.");
 		}
 
-		const hintWord = getHintWord(game.currentWord, game.difficulty);
+		const hintWord = getHintWord(game.currentWord, game.difficulty, game.usedWords);
 		game.players[userId].score -= PENALTY_POINTS;
+
+		await saveGameData(gameData);
 
 		message.reply(`Hint: ${hintWord}\nPenalty: -${PENALTY_POINTS} points`);
 	},
 );
 
-function getHintWord(currentWord, difficulty) {
+function getHintWord(currentWord, difficulty, usedWords) {
 	const lastLetter = currentWord[currentWord.length - 1];
-	const possibleWords = words.filter(word => word[0] === lastLetter && !wcgGames[chatId].usedWords.has(word) && word.length >= WORD_MIN_LENGTH && word.length <= WORD_MAX_LENGTH);
+	const possibleWords = words.filter(word => word[0] === lastLetter && !usedWords.includes(word) && word.length >= WORD_MIN_LENGTH && word.length <= WORD_MAX_LENGTH);
 
 	let hintWord;
 	switch (difficulty) {
