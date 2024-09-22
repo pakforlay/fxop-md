@@ -7,6 +7,8 @@ const git = simplegit();
 const { TIME_ZONE, BRANCH, BOT_INFO } = require("../config");
 const { exec, execSync } = require("child_process");
 var branch = BRANCH;
+const long = String.fromCharCode(8206);
+const readmore = long.repeat(4001);
 
 function getRAMUsage() {
 	const totalMemory = os.totalmem();
@@ -199,7 +201,7 @@ Description: ${plugin.description || "No description available"}\`\`\``);
 			const { prefix } = message;
 			const [currentDate, currentTime] = new Date().toLocaleString("en-IN", { timeZone: TIME_ZONE }).split(",");
 			const currentDay = new Date().toLocaleDateString("en-US", { weekday: "long" });
-			let menuText = `╭─ ғxᴏᴘʀɪsᴀ ᴍᴅ ───
+			let menuText = `\`\`\`╭─ ғxᴏᴘʀɪsᴀ ᴍᴅ ───
 │ PREFIX: ${prefix}
 │ USER: ${message.pushName}
 │ TIME: ${currentTime}
@@ -210,7 +212,7 @@ Description: ${plugin.description || "No description available"}\`\`\``);
 │ MEMORY: ${getRAMUsage()}
 │ OS: ${getOS()}
 │ VERSION: ${require("../package.json").version}
-╰────────────────\n`;
+╰────────────────\`\`\`${readmore}\n`;
 
 			const commandList = [];
 			const categories = new Set();
@@ -228,20 +230,19 @@ Description: ${plugin.description || "No description available"}\`\`\``);
 			Array.from(categories)
 				.sort()
 				.forEach(category => {
-					menuText += `\n╭── *${category}* ────`;
+					menuText += `\`\`\`\n╭── *${category}* ────`;
 					const categoryCommands = commandList.filter(cmd => cmd.category === category);
 					categoryCommands.forEach(({ name }) => {
 						menuText += `\n│ ${name}`;
 					});
-					menuText += `\n╰──────────────\n`;
+					menuText += `\n╰──────────────\n\`\`\``;
 				});
 
 			try {
 				const media = await getBuffer(BOT_INFO.split(";")[2]);
 				return await message.send(media, { caption: `\`\`\`${tiny(menuText.trim())}\`\`\`` });
 			} catch (error) {
-				console.error("Error fetching or sending media:", error);
-				return await message.send(`\`\`\`${tiny(menuText.trim())}\`\`\``);
+				return await message.send(tiny(menuText.trim()));
 			}
 		}
 	},
