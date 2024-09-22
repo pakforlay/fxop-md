@@ -133,7 +133,7 @@ Module(
 	},
 	async (message, match, client) => {
 		await message.sendReply("_Logged Out!_");
-		await message.Logout();
+		await message.logout();
 		return await exec(require("../package.json").scripts.stop);
 	},
 );

@@ -28,7 +28,7 @@ Module(
 		if (!message.reply_message.image) return await message.reply("_Reply to a photo_");
 
 		const buff = await m.quoted.download();
-		await message.setPP(message.user, buff);
+		await message.setProfilePicture(message.user, buff);
 		await message.reply("_Profile Picture Updated_");
 	},
 );
@@ -41,7 +41,7 @@ Module(
 		type: "whatsapp",
 	},
 	async message => {
-		await message.removePP(message.user);
+		await message.removeProfilePicture(message.user);
 		return await message.sendReply("_Profile Photo Removed!_");
 	},
 );
@@ -56,7 +56,7 @@ Module(
 	async (message, match) => {
 		if (!match) return await message.reply("_Enter name_");
 
-		await message.updateName(match);
+		await message.updateProfileName(match);
 		await message.reply(`_Username Updated : ${match}_`);
 	},
 );
@@ -72,7 +72,7 @@ Module(
 		const jid = message.isGroup ? message.mention[0] || message.reply_message.jid : message.jid;
 		if (!jid) return await message.reply(message.isGroup ? "_Reply to a person or mention_" : "_Blocked_");
 		await message.sendMessage(message.isGroup ? `_@${jid.split("@")[0]} Blocked_` : "_Blocked_", { mentions: [jid] });
-		return await message.block(jid);
+		return await message.blockContact(jid);
 	},
 );
 
@@ -87,7 +87,7 @@ Module(
 		const jid = message.isGroup ? message.mention[0] || message.reply_message.jid : message.jid;
 		if (!jid) return await message.reply(message.isGroup ? "_Reply to a person or mention_" : "_User unblocked_");
 		await message.sendMessage(message.isGroup ? `_@${jid.split("@")[0]} unblocked_` : "_User unblocked_", { mentions: [jid] });
-		return await message.unblock(jid);
+		return await message.unblockContact(jid);
 	},
 );
 
@@ -100,7 +100,7 @@ Module(
 	},
 	async message => {
 		const jid = message.mention[0] || message.reply_message.jid || message.jid;
-		await message.send( jid);
+		await message.send(jid);
 	},
 );
 
