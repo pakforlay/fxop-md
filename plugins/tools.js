@@ -1,4 +1,4 @@
-const { Module, mode, qrcode, isUrl, Bitly, removeBg, tinyurl, ssweb, shortenurl, upload, IronMan, ffmpeg, parseTimeToSeconds } = require("../lib");
+const { Module, mode, qrcode, isUrl, Bitly, removeBg, tinyurl, ssweb, shortenurl, upload, IronMan, ffmpeg, parseTimeToSeconds, convertImageBufferToPdf } = require("../lib");
 const sharp = require("sharp");
 const axios = require("axios");
 const cheerio = require("cheerio");
@@ -271,13 +271,21 @@ Module(
 	},
 	async (message, match) => {
 		if (!match) return await message.sendReply("_Provide URL_");
-
 		const url = match.trim();
 		try {
 			const { data } = await axios.get(url);
 			const $ = cheerio.load(data);
-			const title = $("title").text();
-			await message.send(`Title: ${title}`);
+			const htmlStructure = $.html();
+			let elements = [];
+			$("*").each((i, el) => {
+				const tag = $(el).prop("tagName");
+				const content = $(el).text().trim();
+				if (content) {
+					elements.push(`${tag}: ${content}`);
+				}
+			});
+			let scrapedData = elements.slice(0, 100).join("\n");
+			await message.send(scrapedData || "No visible text found on the page.");
 		} catch (error) {
 			await message.reply(`Error scraping data: ${error.message}`);
 		}
