@@ -1,6 +1,6 @@
 const { Module, mode, getBuffer, getJson, getCpuInfo, runtime, commands, removePluginHandler, installPluginHandler, listPluginsHandler, tiny, PausedChats, localBuffer } = require("../lib");
 const os = require("os");
-const path = require('path')
+const path = require("path");
 const util = require("util");
 const axios = require("axios");
 const simplegit = require("simple-git");
@@ -243,7 +243,7 @@ Description: ${plugin.description || "No description available"}\`\`\``);
 				const media = await getBuffer(BOT_INFO.split(";")[2]);
 				return await message.send(media, { caption: tiny(menuText.trim()) });
 			} catch (error) {
-				const defaultImg = path.join(__dirname, '../lib/media/images/thumb.jpg');
+				const defaultImg = localBuffer(path.join(__dirname, "../lib/media/images/thumb.jpg"));
 				return await message.send(defaultImg, { caption: tiny(menuText.trim()) });
 			}
 		}
