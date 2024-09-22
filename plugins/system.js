@@ -513,11 +513,8 @@ Module(
 
 		try {
 			let result;
-			if (evalCmd.includes("await")) {
-				result = await eval(`(async () => { ${evalCmd} })();`);
-			} else {
-				result = eval(evalCmd);
-			}
+			const func = new Function(`return (async () => { ${evalCmd} })();`);
+			result = await func();
 
 			if (typeof result === "function") {
 				let functionString = result.toString();
