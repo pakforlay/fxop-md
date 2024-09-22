@@ -236,10 +236,9 @@ Module(
 		type: "tools",
 	},
 	async (message, match, m, client) => {
-		if (!m.quoted || !m.quoted.image) return await message.reply("Please reply to an image.");
 		let imageBuffer = await m.quoted.download();
 		const result = await convertImageBufferToPdf(imageBuffer);
-		return await sendFile(result);
+		return await message.sendFile(result);
 	},
 );
 
