@@ -203,16 +203,16 @@ Description: ${plugin.description || "No description available"}\`\`\``);
 			const [currentDate, currentTime] = new Date().toLocaleString("en-IN", { timeZone: TIME_ZONE }).split(",");
 			const currentDay = new Date().toLocaleDateString("en-US", { weekday: "long" });
 			let menuText = `\`\`\`╭─ ғxᴏᴘʀɪsᴀ ᴍᴅ ───
-│ PREFIX: ${prefix}
-│ USER: ${message.pushName}
-│ TIME: ${currentTime}
-│ DAY: ${currentDay}
-│ DATE: ${currentDate}
-│ PLUGINS: ${commands.length}
-│ RUNTIME: ${runtime(process.uptime())}
-│ MEMORY: ${getRAMUsage()}
-│ OS: ${getOS()}
-│ VERSION: ${require("../package.json").version}
+│ prefix: ${prefix}
+│ user: ${message.pushName}
+│ os: ${getOS()}
+│ plugins: ${commands.length}
+│ runtime: ${runtime(process.uptime())}
+│ ram: ${getRAMUsage()}
+│ time: ${currentTime}
+│ day: ${currentDay}
+│ date: ${currentDate}
+│ version: ${require("../package.json").version}
 ╰────────────────\`\`\`${readmore}\n`;
 
 			const commandList = [];
