@@ -243,7 +243,7 @@ Description: ${plugin.description || "No description available"}\`\`\``);
 				const media = await getBuffer(BOT_INFO.split(";")[2]);
 				return await message.send(media, { caption: tiny(menuText.trim()) });
 			} catch (error) {
-				const defaultImg = localBuffer(path.join(__dirname, "./lib/media/images/thumb.jpg"));
+				const defaultImg = await localBuffer(path.join(__dirname, "../lib/media/images/thumb.jpg"));
 				return await message.send(defaultImg, { caption: tiny(menuText.trim()) });
 			}
 		}
