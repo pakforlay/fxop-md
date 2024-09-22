@@ -513,8 +513,8 @@ Module(
 
 		try {
 			let result;
-			const func = new Function(`return (async () => { ${evalCmd.replace(/^return\s+/, "return ")} })();`);
-			result = await func();
+			const func = new Function("message", "match", "m", "client", "msg", "ms", `return (async () => { ${evalCmd.replace(/^return\s+/, "return ")} })();`);
+			result = await func(message, match, m, client, msg, ms);
 
 			if (typeof result === "function") {
 				let functionString = result.toString();
