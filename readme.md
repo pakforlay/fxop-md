@@ -6,6 +6,12 @@
   </a>
 </p>
 
+<p align="center">
+  <a href="https://github.com/FXastro/fxop-md/fork">
+    <img src="https://img.shields.io/badge/FORK REPO-000?style=for-the-badge&logo=github&logoColor=white" alt="Generate Session ID"/>
+  </a>
+</p>
+
 A Simple WhatsApp bot built with the Baileys library, designed for easy deployment across various platforms.
 
 ---
