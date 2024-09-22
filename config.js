@@ -2,8 +2,9 @@ const { Sequelize } = require("sequelize");
 require("dotenv").config();
 
 const toBool = x => x?.toLowerCase() === "true";
-const DATABASE_URL = process.env.DATABASE_URL || "./db.sqlite3";
+const DATABASE_URL = process.env.DATABASE_URL?.trim() || "./db.sqlite3";
 const isPostgres = DATABASE_URL.startsWith("postgresql://");
+
 const sequelizeOptions = {
 	dialect: isPostgres ? "postgres" : "sqlite",
 	logging: false,
@@ -17,9 +18,10 @@ const sequelizeOptions = {
 		  }
 		: { storage: DATABASE_URL }),
 };
+
 module.exports = {
 	DATABASE_URL,
-	DATABASE: new Sequelize(DATABASE_URL, sequelizeOptions),
+	DATABASE: new Sequelize(DATABASE_URL, null, null, sequelizeOptions), // Corrected
 	SESSION_ID: (process.env.SESSION_ID || "").trim(),
 	BOT_INFO: process.env.BOT_NAME || "Astro;FxBot;https://f.uguu.se/qHMqiARV.jpg",
 	SUDO: process.env.SUDO || "912345678909",
