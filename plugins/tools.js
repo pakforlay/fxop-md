@@ -98,7 +98,7 @@ Module(
 
 Module(
 	{
-		pattern: "slink ?(.*)",
+		pattern: "url ?(.*)",
 		fromMe: mode,
 		desc: "Shortens link URL",
 		type: "tools",
