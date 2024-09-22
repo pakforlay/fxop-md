@@ -15,7 +15,7 @@ function getRAMUsage() {
 	const totalMemory = os.totalmem();
 	const freeMemory = os.freemem();
 	const usedMemory = totalMemory - freeMemory;
-	return `${(usedMemory / 1024 / 1024).toFixed(2)} MB / ${(totalMemory / 1024 / 1024).toFixed(2)} MB`;
+	return `${(usedMemory / 1024 / 1024 / 1024).toFixed(2)} GB / ${(totalMemory / 1024 / 1024 / 1024).toFixed(2)} GB`;
 }
 
 function getOS() {
