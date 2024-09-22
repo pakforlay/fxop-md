@@ -38,7 +38,7 @@ module.exports = {
 	RMBG_API_KEY: process.env.RMBG_API_KEY || "",
 	DELETED_LOG: toBool(process.env.DELETED_LOG) || false,
 	DELETED_LOG_CHAT: toBool(process.env.DELETED_LOG_CHAT) || false,
-	TIME_ZONE: process.env.TZ || "",
+	TIME_ZONE: process.env.TZ,
 	BRANCH: "master",
 	WORK_TYPE: process.env.WORK_TYPE || "private",
 	VERSION: require("./package.json").version,
