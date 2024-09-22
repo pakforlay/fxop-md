@@ -236,13 +236,24 @@ Module(
 		type: "tools",
 	},
 	async (message, match, m, client) => {
-		if (match) {
-			const txt_pdf = await convertToPDF(match, "text");
-			return await message.sendFile(txt_pdf);
-		} else {
-			let imgBuff = m.quoted.download();
-			const pdf_image = await convertToPDF(imgBuff, "image");
-			return await message.sendFile(pdf_image);
+		try {
+			let pdfBuffer;
+			if (match) {
+				pdfBuffer = await convertToPDF(match, "text");
+			} else if (m.quoted) {
+				const imgBuffer = await m.quoted.download();
+				pdfBuffer = await convertToPDF(imgBuffer, "image");
+			} else {
+				return await message.reply("Please provide text or reply to an image.");
+			}
+			await message.sendMessage({
+				document: pdfBuffer,
+				mimetype: "application/pdf",
+				fileName: "converted.pdf",
+			});
+		} catch (error) {
+			console.error("Error in topdf command:", error);
+			await message.reply("An error occurred while converting to PDF.");
 		}
 	},
 );
