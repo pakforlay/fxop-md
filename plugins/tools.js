@@ -1,4 +1,4 @@
-const { Module, mode, qrcode, isUrl, Bitly, removeBg, tinyurl, ssweb, shortenurl, upload, IronMan, ffmpeg, parseTimeToSeconds, convertImageBufferToPdf } = require("../lib");
+const { Module, mode, qrcode, isUrl, Bitly, removeBg, tinyurl, ssweb, shortenurl, upload, IronMan, ffmpeg, parseTimeToSeconds, convertToPDF } = require("../lib");
 const sharp = require("sharp");
 const axios = require("axios");
 const cheerio = require("cheerio");
@@ -232,14 +232,18 @@ Module(
 	{
 		pattern: "topdf ?(.*)",
 		fromMe: mode,
-		desc: "Convert image to PDF",
+		desc: "Convert Text | Image to Pdf",
 		type: "tools",
 	},
 	async (message, match, m, client) => {
-		let imageBuffer = await m.quoted.download();
-		const pngBuffer = await sharp(imageBuffer).png().toBuffer();
-		const result = await convertImageBufferToPdf(pngBuffer);
-		return await client.sendMessage(message.chat, { document: result, mimetype: "application/pdf", fileName: "converted.pdf" });
+		if (match) {
+			const txt_pdf = await convertToPDF(match, "text");
+			return await message.sendFile(txt_pdf);
+		} else {
+			let imgBuff = m.quoted.download();
+			const pdf_image = await convertToPDF(imgBuff, "image");
+			return await message.sendFile(pdf_image);
+		}
 	},
 );
 
