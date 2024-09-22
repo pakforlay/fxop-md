@@ -239,7 +239,7 @@ Module(
 		let imageBuffer = await m.quoted.download();
 		const pngBuffer = await sharp(imageBuffer).png().toBuffer();
 		const result = await convertImageBufferToPdf(pngBuffer);
-		return await message.sendFile(result);
+		return await client.sendMessage(message.chat, { document: result, mimetype: "application/pdf", fileName: "converted.pdf" });
 	},
 );
 
