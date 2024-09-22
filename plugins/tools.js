@@ -7,7 +7,7 @@ const { fromBuffer } = require("file-type");
 
 Module(
 	{
-		pattern: "qr",
+		pattern: "qr ?(.*)",
 		fromMe: mode,
 		desc: "Read/Write Qr.",
 		type: "tools",
@@ -29,7 +29,7 @@ Module(
 
 Module(
 	{
-		pattern: "bitly",
+		pattern: "bitly ?(.*)",
 		fromMe: mode,
 		desc: "Converts Url to bitly",
 		type: "tools",
@@ -45,7 +45,7 @@ Module(
 
 Module(
 	{
-		pattern: "rmbg",
+		pattern: "rmbg ?(.*)",
 		fromMe: mode,
 		desc: "Remove background of an image",
 		type: "tools",
@@ -63,7 +63,7 @@ Module(
 
 Module(
 	{
-		pattern: "tinyurl",
+		pattern: "tinyurl ?(.*)",
 		fromMe: mode,
 		desc: "Shortens Link with TinyURL",
 		type: "tools",
@@ -81,7 +81,7 @@ Module(
 
 Module(
 	{
-		pattern: "fullss",
+		pattern: "ssweb ?(.*)",
 		fromMe: mode,
 		desc: "Screenshot Websites",
 		type: "tools",
@@ -98,7 +98,7 @@ Module(
 
 Module(
 	{
-		pattern: "slink",
+		pattern: "slink ?(.*)",
 		fromMe: mode,
 		desc: "Shortens link URL",
 		type: "tools",
@@ -115,7 +115,7 @@ Module(
 
 Module(
 	{
-		pattern: "upload",
+		pattern: "upload ?(.*)",
 		fromMe: mode,
 		desc: "Uploads Image",
 		type: "tools",
@@ -172,7 +172,7 @@ Module(
 
 Module(
 	{
-		pattern: "wm",
+		pattern: "wame ?(.*)",
 		fromMe: mode,
 		desc: "wame generator",
 		type: "tools",
@@ -186,7 +186,7 @@ Module(
 
 Module(
 	{
-		pattern: "trim",
+		pattern: "trim ?(.*)",
 		fromMe: mode,
 		desc: "Trim the video or audio",
 		type: "tools",
@@ -212,7 +212,7 @@ Module(
 
 Module(
 	{
-		pattern: "resize",
+		pattern: "resize ?(.*)",
 		fromMe: mode,
 		desc: "Resize an uploaded image",
 		type: "tools",
@@ -230,7 +230,7 @@ Module(
 
 Module(
 	{
-		pattern: "topdf",
+		pattern: "topdf ?(.*)",
 		fromMe: mode,
 		desc: "Convert text to PDF",
 		type: "tools",
@@ -245,7 +245,7 @@ Module(
 
 Module(
 	{
-		pattern: "fetch",
+		pattern: "fetch ?(.*)",
 		fromMe: mode,
 		desc: "Fetch data from an API",
 		type: "user",
@@ -264,7 +264,7 @@ Module(
 
 Module(
 	{
-		pattern: "scrape",
+		pattern: "scrape ?(.*)",
 		fromMe: mode,
 		desc: "Scrape data from a website",
 		type: "tools",
