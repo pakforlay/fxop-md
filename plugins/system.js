@@ -123,7 +123,7 @@ Module(
 		type: "system",
 	},
 	async (message, match) => {
-		message.reply(`*Alive ${runtime(process.uptime())}*`);
+		message.reply(`*${BOT_INFO.split(";")[1]} ${runtime(process.uptime())}*`);
 	},
 );
 
@@ -136,7 +136,7 @@ Module(
 	},
 	async (message, match, client) => {
 		await message.sendReply("_Logged Out!_");
-		await message.logout();
+		await client.logout();
 		return await exec(require("../package.json").scripts.stop);
 	},
 );
@@ -188,7 +188,6 @@ Module(
 		dontAddCommandList: true,
 	},
 	async (message, query) => {
-		await message.react("📃");
 		if (query) {
 			for (const plugin of commands) {
 				if (plugin.pattern && plugin.pattern.test(message.prefix + query)) {

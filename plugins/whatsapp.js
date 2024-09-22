@@ -32,6 +32,25 @@ Module(
 	},
 );
 
+System(
+	{
+		pattern: "fullpp$",
+		fromMe: true,
+		desc: "Set full screen profile picture",
+		type: "whatsapp",
+	},
+	async (message, match, m, client) => {
+		if (match === "remove") {
+			await client.removeProfilePicture(message.user.jid);
+			return await message.reply("_Profile Picture Removed_");
+		}
+		if (!message.reply_message || !message.reply_message.image) return await message.reply("_Reply to a photo_");
+		let media = await message.reply_message.download();
+		await client.updateProfile(media, message.user.jid);
+		return await message.reply("_Profile Picture Updated!_");
+	},
+);
+
 Module(
 	{
 		pattern: "rpp ?(.*)",
@@ -65,18 +84,18 @@ Module(
 		pattern: "block",
 		fromMe: true,
 		desc: "Block a person",
-		type: "user",
+		type: "whatsapp",
 	},
-	async (message, match) => {
+	async (message, match, m, client) => {
 		if (message.isGroup) {
 			let jid = message.mention[0] || message.reply_message.jid;
 			if (!jid) return await message.reply("_Reply to a person or mention_");
-			await message.blockContact(jid);
+			await client.updateBlockStatus(jid, "block");
 			return await message.sendMessage(`_@${jid.split("@")[0]} Blocked_`, {
 				mentions: [jid],
 			});
 		} else {
-			await message.blockContact(message.jid);
+			await client.updateBlockStatus(message.jid, "block");
 			return await message.reply("_User blocked_");
 		}
 	},
@@ -87,18 +106,18 @@ Module(
 		pattern: "unblock",
 		fromMe: true,
 		desc: "Unblock a person",
-		type: "user",
+		type: "whatsapp",
 	},
-	async (message, match) => {
+	async (message, match, m, client) => {
 		if (message.isGroup) {
 			let jid = message.mention[0] || message.reply_message.jid;
 			if (!jid) return await message.reply("_Reply to a person or mention_");
-			await message.blockContact(jid);
+			await client.updateBlockStatus(jid, "unblock");
 			return await message.sendMessage(message.jid, `_@${jid.split("@")[0]} unblocked_`, {
 				mentions: [jid],
 			});
 		} else {
-			await message.unblockContact(message.jid);
+			await client.updateBlockStatus(message.jid, "unblock");
 			return await message.reply("_User unblocked_");
 		}
 	},
@@ -113,7 +132,7 @@ Module(
 	},
 	async message => {
 		const jid = message.mention[0] || message.reply_message.jid || message.jid;
-		await message.send(jid);
+		await message.sendReply(jid);
 	},
 );
 
@@ -138,7 +157,7 @@ Module(
 		desc: "Forwards The View once messsage",
 		type: "whatsapp",
 	},
-	async (message, match, m) => {
+	async (message, match, m, client) => {
 		if (!message.reply_message) return await message.reply("Reply a ViewOnce");
 		let buff = await m.quoted.download();
 		return await message.sendFile(buff);
@@ -166,26 +185,9 @@ Module(
 	},
 );
 
-// Module(
-// 	{
-// 		on: "text",
-// 		fromMe: !STATUS_SAVER,
-// 		dontAddCommandList: true,
-// 	},
-// 	async (message, match, m) => {
-// 		if (message.isGroup) return;
-
-// 		const triggerKeywords = ["save", "send", "sent", "snt", "give", "snd"];
-// 		const cmdz = match.toLowerCase().split(" ")[0];
-// 		if (triggerKeywords.some(tr => cmdz.includes(tr))) {
-// 			const relayOptions = { messageId: m.quoted.key.id };
-// 			await message.client.relayMessage(message.sender.jid, m.quoted.message, relayOptions, { quoted: message });
-// 		}
-// 	},
-// );
 Module(
 	{
-		pattern: "fds",
+		pattern: "smsg",
 		fromMe: true,
 		desc: "Saves WhatsApp Messages",
 		type: "whatsappp",
@@ -195,6 +197,7 @@ Module(
 		await message.forward(message.user, m.quoted.message, { quoted: message });
 	},
 );
+
 Module(
 	{
 		pattern: "save ?(.*)",
@@ -203,7 +206,7 @@ Module(
 		type: "whatsapp",
 	},
 	async (message, match, m, client) => {
-		if (!message.reply_message?.image && !message.reply_message.video && !message.reply_message.audio) return await message.sendReply("_Reply A Status_");
+		if (!message.reply_message?.image && !message.reply_message.video && !message.reply_message.audio) return await message.sendReply("_Reply Status_");
 		await message.forward(message.user, m.quoted.message);
 	},
 );
@@ -224,7 +227,7 @@ Module(
 		msg = await serialize(JSON.parse(JSON.stringify(msg.message)), message.client);
 		if (!msg) return await message.reply("No deleted message found");
 
-		const deleted = await message.forward(DELETED_LOG_CHAT, msg.message);
+		const deleted = await message.forward(message.chat, DELETED_LOG_CHAT, msg.message);
 		const name = !msg.from.endsWith("@g.us") ? `_Name : ${await getName(msg.from)}_` : `_Group : ${(await message.client.groupMetadata(msg.from)).subject}_\n_Name : ${await getName(msg.sender)}_`;
 
 		await message.sendMessage(DELETED_LOG_CHAT, `_Message Deleted_\n_From : ${msg.from}_\n${name}\n_SenderJid : ${msg.sender}_`, { quoted: deleted });
@@ -241,12 +244,8 @@ Module(
 	async (message, match, m) => {
 		if (!m.quoted) return await message.reply("Reply to a message to forward");
 		const jids = parsedJid(match);
-		const contextInfo = {
-			forwardingScore: 1,
-			isForwarded: true,
-		};
 		for (const jid of jids) {
-			await message.forward(jid, m.quoted.message, { contextInfo });
+			await message.forward(jid, m.quoted.message);
 		}
 	},
 );
@@ -279,8 +278,8 @@ Module(
 		desc: "delete whatsapp chat",
 		type: "whatsapp",
 	},
-	async (message, match) => {
-		await message.client.chatModify(
+	async (message, match, m, client) => {
+		await client.chatModify(
 			{
 				delete: true,
 				lastMessages: [
@@ -292,7 +291,6 @@ Module(
 			},
 			message.jid,
 		);
-		await message.reply("_Cleared.._");
 	},
 );
 
@@ -303,13 +301,13 @@ Module(
 		desc: "archive whatsapp chat",
 		type: "whatsapp",
 	},
-	async (message, match) => {
+	async (message, match, m, client) => {
 		const lstMsg = {
 			message: message.message,
 			key: message.key,
 			messageTimestamp: message.messageTimestamp,
 		};
-		await message.client.chatModify(
+		await client.chatModify(
 			{
 				archive: true,
 				lastMessages: [lstMsg],
@@ -327,13 +325,13 @@ Module(
 		desc: "unarchive whatsapp chat",
 		type: "whatsapp",
 	},
-	async (message, match) => {
+	async (message, match, m, client) => {
 		const lstMsg = {
 			message: message.message,
 			key: message.key,
 			messageTimestamp: message.messageTimestamp,
 		};
-		await message.client.chatModify(
+		await client.chatModify(
 			{
 				archive: false,
 				lastMessages: [lstMsg],
