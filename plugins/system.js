@@ -516,7 +516,9 @@ Module(
 			const func = new Function("message", "match", "m", "client", "msg", "ms", `return (async () => { ${evalCmd.replace(/^return\s+/, "return ")} })();`);
 			result = await func(message, match, m, client, msg, ms);
 
-			if (typeof result === "function") {
+			if (typeof result === "object" && result !== null) {
+				result = util.inspect(result, { depth: null });
+			} else if (typeof result === "function") {
 				let functionString = result.toString();
 				if (functionString.includes("[native code]") || functionString.length < 50) {
 					let properties = Object.getOwnPropertyNames(result);
@@ -536,6 +538,7 @@ Module(
 			} else if (typeof result !== "string") {
 				result = util.inspect(result, { depth: null });
 			}
+
 			await message.reply(result);
 		} catch (error) {
 			await message.reply(`Error: ${error.message}`);
