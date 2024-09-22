@@ -271,14 +271,15 @@ Module(
 	},
 	async (message, match) => {
 		if (!match) return await message.sendReply("_Provide URL_");
-		const url = match.slice(6).trim();
+
+		const url = match.trim();
 		try {
 			const { data } = await axios.get(url);
 			const $ = cheerio.load(data);
 			const title = $("title").text();
 			await message.send(`Title: ${title}`);
 		} catch (error) {
-			await message.reply("Error scraping data.");
+			await message.reply(`Error scraping data: ${error.message}`);
 		}
 	},
 );
