@@ -237,7 +237,8 @@ Module(
 	},
 	async (message, match, m, client) => {
 		let imageBuffer = await m.quoted.download();
-		const result = await convertImageBufferToPdf(imageBuffer);
+		const pngBuffer = await sharp(imageBuffer).png().toBuffer();
+		const result = await convertImageBufferToPdf(pngBuffer);
 		return await message.sendFile(result);
 	},
 );
