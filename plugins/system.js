@@ -1,4 +1,4 @@
-const { Module, mode, getBuffer, getJson, getCpuInfo, runtime, commands, removePluginHandler, installPluginHandler, listPluginsHandler, tiny, PausedChats } = require("../lib");
+const { Module, mode, getBuffer, getJson, getCpuInfo, runtime, commands, removePluginHandler, installPluginHandler, listPluginsHandler, tiny, PausedChats, localBuffer } = require("../lib");
 const os = require("os");
 const util = require("util");
 const axios = require("axios");
@@ -242,6 +242,7 @@ Description: ${plugin.description || "No description available"}\`\`\``);
 				const media = await getBuffer(BOT_INFO.split(";")[2]);
 				return await message.send(media, { caption: `\`\`\`${tiny(menuText.trim())}\`\`\`` });
 			} catch (error) {
+				const defaultImg = await localBuffer("../lib/media/images/thumb.jpg");
 				return await message.send(tiny(menuText.trim()));
 			}
 		}
