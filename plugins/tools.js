@@ -248,7 +248,7 @@ Module(
 		pattern: "fetch ?(.*)",
 		fromMe: mode,
 		desc: "Fetch data from an API",
-		type: "user",
+		type: "tools",
 	},
 	async (message, match) => {
 		if (!match) return await message.sendReply("_Provide URL | API to fetch from_");
