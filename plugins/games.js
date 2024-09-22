@@ -1,6 +1,6 @@
-const { Module, mode } = require("../lib");
+const { command, isPrivate } = require("../../lib");
 const axios = require("axios");
-const fs = require("fs").promises;
+const words = require("an-array-of-english-words");
 
 let wcgGames = {};
 const GAME_DURATION = 180000; // 3 minutes
@@ -11,23 +11,13 @@ const POINTS_PER_WORD = 10;
 const BONUS_POINTS = 5;
 const PENALTY_POINTS = 5;
 
-// Load word list
-let wordList;
-async function loadWordList() {
-	try {
-		const data = await fs.readFile("path/to/your/wordlist.txt", "utf8");
-		wordList = new Set(data.split("\n").map(word => word.trim().toLowerCase()));
-	} catch (error) {
-		console.error("Error loading word list:", error);
-		throw error;
-	}
-}
-loadWordList();
+// Create a Set from the words array for faster lookup
+const wordSet = new Set(words);
 
-Module(
+command(
 	{
 		pattern: "wcg",
-		fromMe: mode,
+		fromMe: isPrivate,
 		desc: "Start a Word Chain Game.",
 		type: "game",
 	},
@@ -60,7 +50,7 @@ Module(
 	},
 );
 
-Module(
+command(
 	{
 		on: "text",
 		fromMe: false,
@@ -103,7 +93,7 @@ Module(
 
 function isValidWord(word, chatId) {
 	const game = wcgGames[chatId];
-	return word.length >= WORD_MIN_LENGTH && word.length <= WORD_MAX_LENGTH && word[0] === game.currentWord[game.currentWord.length - 1] && wordList.has(word) && !game.usedWords.has(word);
+	return word.length >= WORD_MIN_LENGTH && word.length <= WORD_MAX_LENGTH && word[0] === game.currentWord[game.currentWord.length - 1] && wordSet.has(word) && !game.usedWords.has(word);
 }
 
 function calculatePoints(word, difficulty) {
@@ -124,7 +114,6 @@ function isGameWinningWord(word) {
 }
 
 function getRandomWord() {
-	const words = Array.from(wordList);
 	return words[Math.floor(Math.random() * words.length)];
 }
 
@@ -149,7 +138,7 @@ async function endGame(chatId, reason = "Time's up!") {
 }
 
 // Hint command
-Module(
+command(
 	{
 		pattern: "wcghint",
 		fromMe: false,
@@ -178,7 +167,7 @@ Module(
 
 function getHintWord(currentWord, difficulty) {
 	const lastLetter = currentWord[currentWord.length - 1];
-	const possibleWords = Array.from(wordList).filter(word => word[0] === lastLetter && !wcgGames[chatId].usedWords.has(word));
+	const possibleWords = words.filter(word => word[0] === lastLetter && !wcgGames[chatId].usedWords.has(word) && word.length >= WORD_MIN_LENGTH && word.length <= WORD_MAX_LENGTH);
 
 	let hintWord;
 	switch (difficulty) {
@@ -186,10 +175,10 @@ function getHintWord(currentWord, difficulty) {
 			hintWord = possibleWords[Math.floor(Math.random() * possibleWords.length)];
 			return `${hintWord[0]}${"*".repeat(hintWord.length - 2)}${hintWord[hintWord.length - 1]}`;
 		case "medium":
-			hintWord = possibleWords.find(word => word.length >= 6);
+			hintWord = possibleWords.find(word => word.length >= 6) || possibleWords[Math.floor(Math.random() * possibleWords.length)];
 			return `${hintWord[0]}${"*".repeat(hintWord.length - 1)}`;
 		case "hard":
-			hintWord = possibleWords.find(word => word.length >= 8);
+			hintWord = possibleWords.find(word => word.length >= 8) || possibleWords[Math.floor(Math.random() * possibleWords.length)];
 			return `${hintWord[0]}${"*".repeat(Math.floor(hintWord.length / 2) - 1)}`;
 	}
 }
