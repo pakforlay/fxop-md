@@ -21,7 +21,7 @@ if (config.RENDER_NAME && config.RENDER_API) {
 					await render.setVar(varKey.toUpperCase(), varValue);
 					await message.send(`*_Successfully Set_* *${varKey}:${varValue}*\n_ReDeploying..._`);
 					await render.deploy("do_not_clear");
-					await new Promise(resolve => pm2.stop("hermit-md", resolve));
+					await new Promise(resolve => pm2.stop("fx-md", resolve));
 				} catch (error) {
 					await message.send(`Error: ${error.message}`);
 				}
@@ -65,7 +65,7 @@ if (config.RENDER_NAME && config.RENDER_API) {
 				if (result) {
 					await message.send(`*_Successfully Deleted_* *${match}*\n_ReDeploying..._`);
 					await render.deploy("do_not_clear");
-					await new Promise(resolve => pm2.stop("hermit-md", resolve));
+					await new Promise(resolve => pm2.stop("fx-md", resolve));
 				} else {
 					await message.send(`Failed to delete *${match}* or it doesn't exist.`);
 				}
@@ -108,7 +108,7 @@ if (config.RENDER_NAME && config.RENDER_API) {
 			try {
 				await message.send("_Restarting..._");
 				await render.restart();
-				await new Promise(resolve => pm2.stop("hermit-md", resolve));
+				await new Promise(resolve => pm2.stop("fx-md", resolve));
 			} catch (error) {
 				await message.send(`Error: ${error.message}`);
 			}
