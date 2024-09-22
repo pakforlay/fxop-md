@@ -185,7 +185,7 @@ Module(
 		dontAddCommandList: true,
 	},
 	async (message, query) => {
-		await message.react("📃")
+		await message.react("📃");
 		if (query) {
 			for (const plugin of commands) {
 				if (plugin.pattern && plugin.pattern.test(message.prefix + query)) {
@@ -199,18 +199,18 @@ Description: ${plugin.description || "No description available"}\`\`\``);
 			const { prefix } = message;
 			const [currentDate, currentTime] = new Date().toLocaleString("en-IN", { timeZone: TIME_ZONE }).split(",");
 			const currentDay = new Date().toLocaleDateString("en-US", { weekday: "long" });
-			let menuText = `\`\`\`╭─ ғxᴏᴘʀɪsᴀ ᴍᴅ ───
-│ User: ${message.pushName}
-│ Prefix: ${prefix}
-│ Date: ${currentDate}
-│ Time: ${currentTime}
-│ Day: ${currentDay}
-│ Plugins: ${commands.length}
-│ Runtime: ${runtime(process.uptime())}
-│ RAM Usage: ${getRAMUsage()}
+			let menuText = `╭─ ғxᴏᴘʀɪsᴀ ᴍᴅ ───
+│ PREFIX: ${prefix}
+│ USER: ${message.pushName}
+│ TIME: ${currentTime}
+│ DAY: ${currentDay}
+│ DATE: ${currentDate}
+│ PLUGINS: ${commands.length}
+│ RUNTIME: ${runtime(process.uptime())}
+│ MEMORY: ${getRAMUsage()}
 │ OS: ${getOS()}
-│ Version: ${require("../package.json").version}
-╰────────────────\`\`\`\n`;
+│ VERSION: ${require("../package.json").version}
+╰────────────────\n`;
 
 			const commandList = [];
 			const categories = new Set();
@@ -238,10 +238,10 @@ Description: ${plugin.description || "No description available"}\`\`\``);
 
 			try {
 				const media = await getBuffer(BOT_INFO.split(";")[2]);
-				return await message.send(media, { caption: tiny(menuText.trim()) });
+				return await message.send(media, { caption: `\`\`\`${tiny(menuText.trim())}\`\`\`` });
 			} catch (error) {
 				console.error("Error fetching or sending media:", error);
-				return await message.send(tiny(menuText.trim()));
+				return await message.send(`\`\`\`${tiny(menuText.trim())}\`\`\``);
 			}
 		}
 	},
