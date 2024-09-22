@@ -252,12 +252,12 @@ Module(
 	},
 	async (message, match) => {
 		if (!match) return await message.sendReply("_Provide URL | API to fetch from_");
-		const endpoint = match.slice(10).trim();
+		const endpoint = match.trim();
 		try {
 			const response = await axios.get(endpoint);
 			await message.send(JSON.stringify(response.data, null, 2));
 		} catch (error) {
-			await message.reply("Error fetching data.");
+			await message.reply(`Error fetching data: ${error.message}`);
 		}
 	},
 );
