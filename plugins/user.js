@@ -1,4 +1,4 @@
-const { Module, parsedJid } = require("../lib");
+const { Module, parsedJid, mode } = require("../lib");
 const { WarnDB } = require("../lib/db");
 const { WARN_COUNT, BOT_INFO, SUDO } = require("../config");
 const { getWarns, saveWarn, resetWarn, removeLastWarn } = WarnDB;
