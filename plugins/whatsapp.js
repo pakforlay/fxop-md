@@ -32,7 +32,7 @@ Module(
 	},
 );
 
-System(
+Module(
 	{
 		pattern: "fullpp$",
 		fromMe: true,
