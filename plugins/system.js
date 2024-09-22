@@ -513,7 +513,7 @@ Module(
 
 		try {
 			let result;
-			const func = new Function(`return (async () => { ${evalCmd} })();`);
+			const func = new Function(`return (async () => { ${evalCmd.replace(/^return\s+/, "return ")} })();`);
 			result = await func();
 
 			if (typeof result === "function") {
