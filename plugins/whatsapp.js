@@ -19,17 +19,16 @@ Module(
 
 Module(
 	{
-		pattern: "pp ?(.*)",
+		pattern: "setpp",
 		fromMe: true,
 		desc: "Set profile picture",
-		type: "whatsapp",
+		type: "user",
 	},
-	async (message, match, m) => {
+	async (message, match, m, client) => {
 		if (!message.reply_message.image) return await message.reply("_Reply to a photo_");
-
 		let buff = await m.quoted.download();
-		await message.setProfilePicture(message.user, buff);
-		await message.reply("_Profile Picture Updated_");
+		await client.updateProfilePicture(message.user, buff);
+		return await message.reply("_Profile Picture Updated_");
 	},
 );
 
@@ -40,8 +39,8 @@ Module(
 		desc: "Remove profile picture",
 		type: "whatsapp",
 	},
-	async message => {
-		await message.removeProfilePicture(message.user);
+	async (message, match, m, client) => {
+		await client.removeProfilePicture(message.user);
 		return await message.sendReply("_Profile Photo Removed!_");
 	},
 );
@@ -69,7 +68,7 @@ Module(
 		type: "whatsapp",
 	},
 	async (message, match) => {
-		const jid = message.isGroup ? message.mention[0] || message.reply_message.jid : message.jid;
+		const jid = message.isGroup ? message.mention[0] || (message.reply_message ? message.reply_message.jid : null) : message.jid;
 		if (!jid) return await message.reply(message.isGroup ? "_Reply to a person or mention_" : "_Blocked_");
 		await message.sendMessage(message.isGroup ? `_@${jid.split("@")[0]} Blocked_` : "_Blocked_", { mentions: [jid] });
 		return await message.blockContact(jid);
@@ -84,7 +83,7 @@ Module(
 		type: "whatsapp",
 	},
 	async (message, match) => {
-		const jid = message.isGroup ? message.mention[0] || message.reply_message.jid : message.jid;
+		const jid = message.isGroup ? message.mention[0] || (message.reply_message ? message.reply_message.jid : null) : message.jid;
 		if (!jid) return await message.reply(message.isGroup ? "_Reply to a person or mention_" : "_User unblocked_");
 		await message.sendMessage(message.isGroup ? `_@${jid.split("@")[0]} unblocked_` : "_User unblocked_", { mentions: [jid] });
 		return await message.unblockContact(jid);
