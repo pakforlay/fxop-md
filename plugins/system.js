@@ -230,7 +230,7 @@ Description: ${plugin.description || "No description available"}\`\`\``);
 			Array.from(categories)
 				.sort()
 				.forEach(category => {
-					menuText += `\`\`\`\n╭── *${category}* ────`;
+					menuText += `\`\`\`\n╭── ${category} ────`;
 					const categoryCommands = commandList.filter(cmd => cmd.category === category);
 					categoryCommands.forEach(({ name }) => {
 						menuText += `\n│ ${name}`;
