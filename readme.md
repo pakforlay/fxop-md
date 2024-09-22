@@ -4,19 +4,13 @@
   <a href="https://fx-website-one.vercel.app/">
     <img src="https://img.shields.io/badge/FX WEBSITE-000?style=for-the-badge&logo=vercel&logoColor=white" alt="Generate Session ID"/>
   </a>
-</p>
 
-<p align="center">
   <a href="https://github.com/FXastro/fxop-md/fork">
     <img src="https://img.shields.io/badge/FORK REPO-000?style=for-the-badge&logo=github&logoColor=white" alt="Generate Session ID"/>
   </a>
 </p>
 
 A Simple WhatsApp bot built with the Baileys library, designed for easy deployment across various platforms.
-
----
-
-Here’s the revised section with a focus on the platform's purpose for Node.js apps, along with details on obtaining API keys and account creation:
 
 ---
 
